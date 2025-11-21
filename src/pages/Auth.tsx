@@ -129,34 +129,7 @@ const Auth = () => {
     }
   };
 
-  const handleResetPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateEmail(resetEmail)) {
-      toast.error('Please enter a valid email address');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const { supabase } = await import('@/integrations/supabase/client');
-      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-
-      if (error) {
-        toast.error(error.message);
-      } else {
-        toast.success('Password reset link sent! Check your email.');
-        setShowResetPassword(false);
-        setResetEmail('');
-      }
-    } catch (error: any) {
-      toast.error('An unexpected error occurred');
-    } finally {
-      setLoading(false);
-    }
-  };
+ 
 
   return (
     <div className="min-h-screen min-h-[100dvh] w-full flex items-center justify-center p-3 sm:p-4 relative overflow-hidden">

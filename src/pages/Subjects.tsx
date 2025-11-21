@@ -1,39 +1,47 @@
 import { Link } from "react-router-dom";
 import { subjects } from "@/data/subjects";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useCloudProgress } from "@/hooks/useCloudProgress";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Loader2 } from "lucide-react";
 import { ArcadeNavbar } from "@/components/ArcadeNavbar";
 
-interface SubjectProgress {
-  [subjectId: string]: {
-    [topicId: string]: boolean;
-  };
-}
-
 const Subjects = () => {
-  const [progress] = useLocalStorage<SubjectProgress>("subject-progress", {});
+  const { progress, loading } = useCloudProgress();
 
   const calculateProgress = (subjectId: string) => {
     const subject = subjects.find((s) => s.id === subjectId);
     if (!subject) return 0;
 
     const totalTopics = subject.units.reduce(
-      (acc, unit) => acc + unit.topics.length,
+      (acc, unit) => acc + unit.topics.filter((topic) => !topic.isHeading).length,
       0
     );
     const completedTopics = subject.units.reduce((acc, unit) => {
       return (
         acc +
         unit.topics.filter(
-          (topic) => progress[subjectId]?.[topic.id] === true
+          (topic) => !topic.isHeading && progress[subjectId]?.[topic.id] === true
         ).length
       );
     }, 0);
 
     return totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
   };
+
+  if (loading) {
+    return (
+      <>
+        <ArcadeNavbar />
+        <div className="min-h-screen bg-background pb-24 flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+            <p className="text-sm text-muted-foreground font-bold">Loading subjects...</p>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -54,7 +62,7 @@ const Subjects = () => {
           {subjects.map((subject) => {
             const progressPercent = calculateProgress(subject.id);
             const totalTopics = subject.units.reduce(
-              (acc, unit) => acc + unit.topics.length,
+              (acc, unit) => acc + unit.topics.filter(t => !t.isHeading).length,
               0
             );
 

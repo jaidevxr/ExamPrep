@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { subjects } from "@/data/subjects";
+import { useCloudProgress } from "@/hooks/useCloudProgress";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -11,16 +12,11 @@ import {
   BookMarked, 
   Calendar,
   CheckCircle2,
-  Circle
+  Circle,
+  Loader2
 } from "lucide-react";
 import { toast } from "sonner";
 import { ArcadeNavbar } from "@/components/ArcadeNavbar";
-
-interface SubjectProgress {
-  [subjectId: string]: {
-    [topicId: string]: boolean;
-  };
-}
 
 interface ImportantTopics {
   [subjectId: string]: {
@@ -30,23 +26,19 @@ interface ImportantTopics {
 
 const SubjectDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const [progress, setProgress] = useLocalStorage<SubjectProgress>("subject-progress", {});
+  const { progress, updateProgress, loading } = useCloudProgress();
   const [importantTopics, setImportantTopics] = useLocalStorage<ImportantTopics>("important-topics", {});
   const [filter, setFilter] = useState<"all" | "completed" | "pending" | "important">("all");
 
   const subject = subjects.find((s) => s.id === id);
 
-  const toggleTopic = (topicId: string) => {
+  const toggleTopic = async (topicId: string) => {
     if (!subject) return;
     
-    const newProgress = { ...progress };
-    if (!newProgress[subject.id]) {
-      newProgress[subject.id] = {};
-    }
-    newProgress[subject.id][topicId] = !newProgress[subject.id][topicId];
-    setProgress(newProgress);
+    const isCompleted = progress[subject.id]?.[topicId] === true;
+    await updateProgress(subject.id, topicId, !isCompleted);
 
-    if (newProgress[subject.id][topicId]) {
+    if (!isCompleted) {
       toast.success("Topic completed! Keep going!", {
         duration: 2000,
       });
@@ -69,23 +61,26 @@ const SubjectDetail = () => {
     const unit = subject.units.find((u) => u.id === unitId);
     if (!unit) return 0;
 
-    const completed = unit.topics.filter(
+    const nonHeadingTopics = unit.topics.filter((topic) => !topic.isHeading);
+    const completed = nonHeadingTopics.filter(
       (topic) => progress[subject.id]?.[topic.id] === true
     ).length;
-    return Math.round((completed / unit.topics.length) * 100);
+    return nonHeadingTopics.length > 0 
+      ? Math.round((completed / nonHeadingTopics.length) * 100)
+      : 0;
   };
 
   const overallProgress = useMemo(() => {
     if (!subject) return 0;
     const totalTopics = subject.units.reduce(
-      (acc, unit) => acc + unit.topics.length,
+      (acc, unit) => acc + unit.topics.filter((topic) => !topic.isHeading).length,
       0
     );
     const completedTopics = subject.units.reduce((acc, unit) => {
       return (
         acc +
         unit.topics.filter(
-          (topic) => progress[subject.id]?.[topic.id] === true
+          (topic) => !topic.isHeading && progress[subject.id]?.[topic.id] === true
         ).length
       );
     }, 0);
@@ -100,22 +95,43 @@ const SubjectDetail = () => {
     return Math.ceil((examDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
   }, [subject]);
 
+  if (loading) {
+    return (
+      <>
+        <ArcadeNavbar />
+        <div className="min-h-screen bg-background pb-24 flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+            <p className="text-sm text-muted-foreground font-bold">Loading progress...</p>
+          </div>
+        </div>
+      </>
+    );
+  }
+
   if (!subject) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Card className="p-8 text-center">
-          <p className="text-muted-foreground">Subject not found</p>
-          <Link to="/">
-            <Button className="mt-4">Go back</Button>
-          </Link>
-        </Card>
-      </div>
+      <>
+        <ArcadeNavbar />
+        <div className="min-h-screen bg-background pb-24 flex items-center justify-center">
+          <Card className="p-8 text-center minecraft-block">
+            <p className="text-muted-foreground font-bold">Subject not found</p>
+            <Link to="/subjects">
+              <Button className="mt-4">Go back</Button>
+            </Link>
+          </Card>
+        </div>
+      </>
     );
   }
 
   const filteredUnits = subject.units.map((unit) => ({
     ...unit,
     topics: unit.topics.filter((topic) => {
+      // Always show headings in "all" view
+      if (filter === "all") return true;
+      // Don't show headings in filtered views
+      if (topic.isHeading) return false;
       if (filter === "completed") return progress[subject.id]?.[topic.id] === true;
       if (filter === "pending") return !progress[subject.id]?.[topic.id];
       if (filter === "important") return importantTopics[subject.id]?.[topic.id] === true;
@@ -185,7 +201,7 @@ const SubjectDetail = () => {
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Total Topics</p>
                 <p className="text-3xl font-bold">
-                  {subject.units.reduce((acc, u) => acc + u.topics.length, 0)}
+                  {subject.units.reduce((acc, u) => acc + u.topics.filter(t => !t.isHeading).length, 0)}
                 </p>
               </div>
               <Circle className="h-10 w-10 text-secondary" />
@@ -243,43 +259,54 @@ const SubjectDetail = () => {
 
               <div className="space-y-3">
                 {unit.topics.map((topic) => (
-                  <div
-                    key={topic.id}
-                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-smooth"
-                  >
-                    <Checkbox
-                      checked={progress[subject.id]?.[topic.id] === true}
-                      onCheckedChange={() => toggleTopic(topic.id)}
-                    />
-                    <span
-                      className={`flex-1 ${
-                        progress[subject.id]?.[topic.id] === true
-                          ? "line-through text-muted-foreground"
-                          : ""
-                      }`}
+                  topic.isHeading ? (
+                    <div
+                      key={topic.id}
+                      className="mt-4 mb-2"
                     >
-                      {topic.title}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => toggleImportant(topic.id)}
-                      className={
-                        importantTopics[subject.id]?.[topic.id] === true
-                          ? "text-warning"
-                          : "text-muted-foreground"
-                      }
+                      <h3 className="text-base font-bold text-foreground">
+                        {topic.title}
+                      </h3>
+                    </div>
+                  ) : (
+                    <div
+                      key={topic.id}
+                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-smooth"
                     >
-                      <Star
-                        className="h-4 w-4"
-                        fill={
-                          importantTopics[subject.id]?.[topic.id] === true
-                            ? "currentColor"
-                            : "none"
-                        }
+                      <Checkbox
+                        checked={progress[subject.id]?.[topic.id] === true}
+                        onCheckedChange={() => toggleTopic(topic.id)}
                       />
-                    </Button>
-                  </div>
+                      <span
+                        className={`flex-1 ${
+                          progress[subject.id]?.[topic.id] === true
+                            ? "line-through text-muted-foreground"
+                            : ""
+                        }`}
+                      >
+                        {topic.title}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleImportant(topic.id)}
+                        className={
+                          importantTopics[subject.id]?.[topic.id] === true
+                            ? "text-warning"
+                            : "text-muted-foreground"
+                        }
+                      >
+                        <Star
+                          className="h-4 w-4"
+                          fill={
+                            importantTopics[subject.id]?.[topic.id] === true
+                              ? "currentColor"
+                              : "none"
+                          }
+                        />
+                      </Button>
+                    </div>
+                  )
                 ))}
               </div>
             </Card>

@@ -13,7 +13,7 @@ export const DynamicIsland = ({ nextExam, daysUntilExam }: DynamicIslandProps) =
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 1000);
+    }, 1000); // Update every second
 
     return () => clearInterval(timer);
   }, []);
@@ -41,9 +41,28 @@ export const DynamicIsland = ({ nextExam, daysUntilExam }: DynamicIslandProps) =
   };
 
   const getUrgencyText = () => {
-    if (daysUntilExam === 0) return "Today!";
-    if (daysUntilExam === 1) return "Tomorrow";
-    return `${daysUntilExam} days`;
+    const now = new Date();
+    const examDateTime = new Date(nextExam.examDate);
+    examDateTime.setHours(14, 0, 0, 0); // 2 PM
+    
+    const diff = examDateTime.getTime() - now.getTime();
+    
+    if (diff <= 0) {
+      return "Happening now!";
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    
+    // Show precise countdown
+    if (days > 0) {
+      return `${days}d ${hours}h ${minutes}m`;
+    } else if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    } else {
+      return `${minutes}m`;
+    }
   };
 
   return (
@@ -80,8 +99,10 @@ export const DynamicIsland = ({ nextExam, daysUntilExam }: DynamicIslandProps) =
           </div>
         </div>
 
-        <div className="mt-2 sm:mt-0 text-[10px] text-muted-foreground text-right sm:text-left">
-          <span className="uppercase tracking-wider">{nextExam.name}</span>
+        <div className="mt-2 sm:mt-0 text-right sm:text-left">
+          <div className="text-[10px] text-muted-foreground">
+            <span className="uppercase tracking-wider font-bold">{nextExam.name}</span>
+          </div>
         </div>
       </div>
     </div>

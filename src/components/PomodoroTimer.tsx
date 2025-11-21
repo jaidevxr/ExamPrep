@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, RotateCcw, Coffee } from "lucide-react";
 import { toast } from "sonner";
+import { LofiMusicPlayer } from "./LofiMusicPlayer";
 
 type TimerMode = "focus" | "break";
 
@@ -11,6 +12,7 @@ export const PomodoroTimer = () => {
   const [minutes, setMinutes] = useState(25);
   const [seconds, setSeconds] = useState(0);
   const [isActive, setIsActive] = useState(false);
+  const [musicPlaying, setMusicPlaying] = useState(false);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -53,7 +55,11 @@ export const PomodoroTimer = () => {
   }, [isActive, minutes, seconds, mode]);
 
   const toggleTimer = () => {
-    setIsActive(!isActive);
+    const newState = !isActive;
+    setIsActive(newState);
+    if (mode === "focus") {
+      setMusicPlaying(newState);
+    }
   };
 
   const resetTimer = () => {
@@ -74,67 +80,74 @@ export const PomodoroTimer = () => {
   };
 
   return (
-    <Card className="p-8 shadow-custom-md card-hover">
-      <div className="space-y-6">
-        <div className="flex gap-2 justify-center">
-          <Button
-            variant={mode === "focus" ? "default" : "outline"}
-            size="sm"
-            onClick={() => switchMode("focus")}
-            className="flex items-center gap-2"
-          >
-            <Play className="h-4 w-4" />
-            Focus
-          </Button>
-          <Button
-            variant={mode === "break" ? "default" : "outline"}
-            size="sm"
-            onClick={() => switchMode("break")}
-            className="flex items-center gap-2"
-          >
-            <Coffee className="h-4 w-4" />
-            Break
-          </Button>
-        </div>
-
-        <div className="text-center">
-          <div className="text-6xl font-bold mb-2 font-mono tracking-tight">
-            {formatTime(minutes, seconds)}
+    <div className="space-y-4">
+      <Card className="p-8 shadow-custom-md card-hover">
+        <div className="space-y-6">
+          <div className="flex gap-2 justify-center">
+            <Button
+              variant={mode === "focus" ? "default" : "outline"}
+              size="sm"
+              onClick={() => switchMode("focus")}
+              className="flex items-center gap-2"
+            >
+              <Play className="h-4 w-4" />
+              Focus
+            </Button>
+            <Button
+              variant={mode === "break" ? "default" : "outline"}
+              size="sm"
+              onClick={() => switchMode("break")}
+              className="flex items-center gap-2"
+            >
+              <Coffee className="h-4 w-4" />
+              Break
+            </Button>
           </div>
-          <p className="text-muted-foreground">
-            {mode === "focus" ? "Time to focus!" : "Take a break"}
-          </p>
-        </div>
 
-        <div className="flex gap-3 justify-center">
-          <Button
-            onClick={toggleTimer}
-            size="lg"
-            className="flex items-center gap-2"
-          >
-            {isActive ? (
-              <>
-                <Pause className="h-5 w-5" />
-                Pause
-              </>
-            ) : (
-              <>
-                <Play className="h-5 w-5" />
-                Start
-              </>
-            )}
-          </Button>
-          <Button
-            onClick={resetTimer}
-            variant="outline"
-            size="lg"
-            className="flex items-center gap-2"
-          >
-            <RotateCcw className="h-5 w-5" />
-            Reset
-          </Button>
+          <div className="text-center">
+            <div className="text-6xl font-bold mb-2 font-mono tracking-tight">
+              {formatTime(minutes, seconds)}
+            </div>
+            <p className="text-muted-foreground">
+              {mode === "focus" ? "Time to focus!" : "Take a break"}
+            </p>
+          </div>
+
+          <div className="flex gap-3 justify-center">
+            <Button
+              onClick={toggleTimer}
+              size="lg"
+              className="flex items-center gap-2"
+            >
+              {isActive ? (
+                <>
+                  <Pause className="h-5 w-5" />
+                  Pause
+                </>
+              ) : (
+                <>
+                  <Play className="h-5 w-5" />
+                  Start
+                </>
+              )}
+            </Button>
+            <Button
+              onClick={resetTimer}
+              variant="outline"
+              size="lg"
+              className="flex items-center gap-2"
+            >
+              <RotateCcw className="h-5 w-5" />
+              Reset
+            </Button>
+          </div>
         </div>
-      </div>
-    </Card>
+      </Card>
+      
+      <LofiMusicPlayer 
+        isPlaying={musicPlaying} 
+        onPlayStateChange={setMusicPlaying}
+      />
+    </div>
   );
 };

@@ -4,10 +4,11 @@ import { subjects } from "@/data/subjects";
 import { ExamCountdown } from "@/components/ExamCountdown";
 import { ArcadeTimer } from "@/components/ArcadeTimer";
 import { DynamicIsland } from "@/components/DynamicIsland";
+import { ExamCalendar } from "@/components/ExamCalendar";
 import { ArcadeNavbar } from "@/components/ArcadeNavbar";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useCloudProgress } from "@/hooks/useCloudProgress";
 import { 
   Flame, 
   BookOpen, 
@@ -15,7 +16,8 @@ import {
   TrendingUp,
   Calendar,
   Clock,
-  Zap
+  Zap,
+  Loader2
 } from "lucide-react";
 
 interface SubjectProgress {
@@ -25,7 +27,7 @@ interface SubjectProgress {
 }
 
 const Dashboard = () => {
-  const [progress] = useLocalStorage<SubjectProgress>("subject-progress", {});
+  const { progress, loading } = useCloudProgress();
   const [studyStreak] = useLocalStorage<number>("study-streak", 0);
   const [viewMode, setViewMode] = useState<"card" | "list">("card");
 
@@ -58,23 +60,46 @@ const Dashboard = () => {
   }, [progress]);
 
   const upcomingExam = useMemo(() => {
+    const now = new Date();
     const sortedSubjects = [...subjects].sort(
       (a, b) => new Date(a.examDate).getTime() - new Date(b.examDate).getTime()
     );
-    return sortedSubjects[0];
+
+    const next = sortedSubjects.find((subject) => {
+      const examDate = new Date(subject.examDate);
+      examDate.setHours(14, 0, 0, 0);
+      return examDate.getTime() >= now.getTime();
+    });
+
+    return next || sortedSubjects[sortedSubjects.length - 1];
   }, []);
 
   const daysUntilNextExam = useMemo(() => {
     const now = new Date();
+    if (!upcomingExam) return 0;
+
     const examDate = new Date(upcomingExam.examDate);
-    return Math.ceil((examDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    examDate.setHours(14, 0, 0, 0); // Set to 2 PM
+
+    const diffMs = examDate.getTime() - now.getTime();
+    if (diffMs <= 0) return 0;
+
+    return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
   }, [upcomingExam]);
 
   return (
     <>
       <ArcadeNavbar />
       <div className="min-h-screen w-full relative pb-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 relative z-10 max-w-7xl">
+        {loading ? (
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="text-center space-y-4">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+              <p className="text-sm text-muted-foreground font-bold">Loading your progress...</p>
+            </div>
+          </div>
+        ) : (
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 relative z-10 max-w-7xl">
           {/* Dynamic Island */}
           <div className="flex justify-center">
             <DynamicIsland nextExam={upcomingExam} daysUntilExam={daysUntilNextExam} />
@@ -184,13 +209,15 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Arcade Timer */}
+            {/* Arcade Timer & Exam Calendar */}
             <div className="space-y-4">
               <h2 className="text-base sm:text-xl font-black arcade-text text-secondary">⚡ FOCUS ZONE</h2>
               <ArcadeTimer />
+              <ExamCalendar />
             </div>
           </div>
-        </div>
+          </div>
+        )}
       </div>
     </>
   );

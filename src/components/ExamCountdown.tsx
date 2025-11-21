@@ -14,29 +14,34 @@ export const ExamCountdown = ({ subject, progress }: ExamCountdownProps) => {
     const calculateTimeLeft = () => {
       const now = new Date();
       const examDate = new Date(subject.examDate);
+      
+      // Set exam time to 2 PM (14:00) on exam day
+      examDate.setHours(14, 0, 0, 0);
+      
       const diff = examDate.getTime() - now.getTime();
 
       if (diff <= 0) {
-        setTimeLeft("Exam day!");
+        setTimeLeft("Exam started!");
         return;
       }
 
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
-      if (days === 0) {
-        setTimeLeft(`${hours} hours left`);
-      } else if (days === 1) {
-        setTimeLeft(`Tomorrow`);
+      // Always show days, hours, and minutes for precise countdown
+      if (days > 0) {
+        setTimeLeft(`${days}d ${hours}h ${minutes}m`);
+      } else if (hours > 0) {
+        setTimeLeft(`${hours}h ${minutes}m`);
       } else {
-        setTimeLeft(`${days} days left`);
+        setTimeLeft(`${minutes}m`);
       }
     };
 
     calculateTimeLeft();
-    const interval = setInterval(calculateTimeLeft, 60000); // Update every minute
-
-    return () => clearInterval(interval);
+    const timer = setInterval(calculateTimeLeft, 1000); // Update every second
+    return () => clearInterval(timer);
   }, [subject.examDate]);
 
   const getUrgencyColor = () => {

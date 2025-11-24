@@ -56,15 +56,7 @@ export const AlphaLearningMode = () => {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const progressPercentage = useMemo(() => {
-    if (!session || !subject) return 0;
-    const totalTopics = subject.units.reduce((acc, unit) => acc + unit.topics.length, 0);
-    const completedTopics = subject.units.reduce((acc, unit) => {
-      return acc + unit.topics.filter((topic) => progress[subject.id]?.[topic.id] === true).length;
-    }, 0);
-    return totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
-  }, [subject, progress, session]);
-
+  
   const handleExit = () => {
     if (isConfirmingExit) {
       setIsPlaying(false);

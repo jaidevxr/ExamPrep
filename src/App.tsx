@@ -29,7 +29,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <MusicPlayerProvider>
-          
+          <AlphaLearningProvider>
             <AuthProvider>
             <Routes>
             <Route path="/auth" element={<Auth />} />
@@ -93,9 +93,9 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
           <GlobalMusicPlayer />
-         
+          <AlphaLearningMode />
         </AuthProvider>
-         
+          </AlphaLearningProvider>
         </MusicPlayerProvider>
       </BrowserRouter>
     </TooltipProvider>

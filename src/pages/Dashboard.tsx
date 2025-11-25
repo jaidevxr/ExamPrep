@@ -39,24 +39,28 @@ const Dashboard = () => {
   const { setIsPlaying } = useMusicPlayer();
 
   const calculateProgress = (subjectId: string) => {
-    const subject = subjects.find((s) => s.id === subjectId);
-    if (!subject) return 0;
+  const subject = subjects.find((s) => s.id === subjectId);
+  if (!subject) return 0;
 
-    const totalTopics = subject.units.reduce(
-      (acc, unit) => acc + unit.topics.length,
-      0
+  // Count only real topics (exclude headings)
+  const totalTopics = subject.units.reduce(
+    (acc, unit) => acc + unit.topics.filter((topic) => !topic.isHeading).length,
+    0
+  );
+
+  const completedTopics = subject.units.reduce((acc, unit) => {
+    return (
+      acc +
+      unit.topics.filter(
+        (topic) =>
+          !topic.isHeading && progress[subjectId]?.[topic.id] === true
+      ).length
     );
-    const completedTopics = subject.units.reduce((acc, unit) => {
-      return (
-        acc +
-        unit.topics.filter(
-          (topic) => progress[subjectId]?.[topic.id] === true
-        ).length
-      );
-    }, 0);
+  }, 0);
 
-    return totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
-  };
+  return totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
+};
+
 
   const overallProgress = useMemo(() => {
     const totalProgress = subjects.reduce(

@@ -1,9 +1,6 @@
-Here is the enhanced, fully beautified `README.md`. I have added professional badges, a centered layout, social icons, interactive checklists, and a cleaner hierarchy.
-
-````markdown
 <div align="center">
 
-  <h1>📚 ExamPrep Pro</h1>
+  <h1>ExamPrep</h1>
 
   <p>
     <b>Your Personal AI-Powered Study Dashboard</b>
@@ -101,7 +98,7 @@ Here is the enhanced, fully beautified `README.md`. I have added professional ba
 
 ## 📂 Project Map
 
-```bash
+
 src/
 ├── 🧩 components/      # Reusable UI components (Cards, Modals, Buttons)
 ├── 📄 pages/           # Main Application Routes (Dashboard, Auth, Analytics)
@@ -110,7 +107,7 @@ src/
 ├── 💾 data/            # Static Data (Subject lists, Topics)
 ├── 🔌 integrations/    # Supabase Client Configuration
 └── 🎨 assets/          # Static Assets (Images, Icons)
-````
+
 
 -----
 
@@ -124,7 +121,7 @@ Ensure you have **Node.js** installed.
 
 ### 2️⃣ Clone & Install
 
-```bash
+
 # Clone the repository
 git clone [https://github.com/jaidevyadav/examprep.git](https://github.com/jaidevyadav/examprep.git)
 
@@ -133,23 +130,12 @@ cd examprep
 
 # Install dependencies
 npm install
-```
 
-### 3️⃣ Environment Setup
-
-Create a `.env` file in the root directory:
-
-```env
-VITE_SUPABASE_URL="your_supabase_url_here"
-VITE_SUPABASE_ANON_KEY="your_supabase_anon_key_here"
-VITE_SUPABASE_PROJECT_ID="your_project_id"
-```
 
 ### 4️⃣ Launch App
 
-```bash
 npm run dev
-```
+
 
 -----
 

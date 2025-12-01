@@ -18,8 +18,19 @@ export const ExamCountdown = ({ subject, progress }: ExamCountdownProps) => {
       // Set exam time to 2 PM (14:00) on exam day
       examDate.setHours(14, 0, 0, 0);
       
+      // Exam ends at 5 PM (17:00) - 3 hours duration
+      const examEndDate = new Date(subject.examDate);
+      examEndDate.setHours(17, 0, 0, 0);
+      
       const diff = examDate.getTime() - now.getTime();
 
+      // Check if exam has ended
+      if (now.getTime() > examEndDate.getTime()) {
+        setTimeLeft("Exam done!");
+        return;
+      }
+
+      // Check if exam is in progress
       if (diff <= 0) {
         setTimeLeft("Exam started!");
         return;

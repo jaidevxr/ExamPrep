@@ -3,13 +3,13 @@ import { ArcadeNavbar } from "@/components/ArcadeNavbar";
 import { Card } from "@/components/ui/card";
 import { subjects } from "@/data/subjects";
 import { useCloudProgress } from "@/hooks/useCloudProgress";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useStudyStreak } from "@/hooks/useStudyStreak";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 import { TrendingUp, Target, BookOpen, CheckCircle2, Clock, Zap, Loader2 } from "lucide-react";
 
 const Analytics = () => {
   const { progress, loading } = useCloudProgress();
-  const [studyStreak] = useLocalStorage<number>("study-streak", 0);
+  const { streak: studyStreak } = useStudyStreak();
 
   const calculateProgress = (subjectId: string) => {
     const subject = subjects.find((s) => s.id === subjectId);

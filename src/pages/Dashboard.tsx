@@ -11,8 +11,8 @@ import { ExamCalendar } from "@/components/ExamCalendar";
 import { ArcadeNavbar } from "@/components/ArcadeNavbar";
 import { AlphaLearningSetup } from "@/components/AlphaLearningSetup";
 import { Card } from "@/components/ui/card";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useCloudProgress } from "@/hooks/useCloudProgress";
+import { useStudyStreak } from "@/hooks/useStudyStreak";
 import { 
   Flame, 
   BookOpen, 
@@ -32,35 +32,31 @@ interface SubjectProgress {
 
 const Dashboard = () => {
   const { progress, loading } = useCloudProgress();
-  const [studyStreak] = useLocalStorage<number>("study-streak", 0);
+  const { streak: studyStreak } = useStudyStreak();
   const [viewMode, setViewMode] = useState<"card" | "list">("card");
   const [alphaSetupOpen, setAlphaSetupOpen] = useState(false);
   const { startSession, isActive } = useAlphaLearning();
   const { setIsPlaying } = useMusicPlayer();
 
   const calculateProgress = (subjectId: string) => {
-  const subject = subjects.find((s) => s.id === subjectId);
-  if (!subject) return 0;
+    const subject = subjects.find((s) => s.id === subjectId);
+    if (!subject) return 0;
 
-  // Count only real topics (exclude headings)
-  const totalTopics = subject.units.reduce(
-    (acc, unit) => acc + unit.topics.filter((topic) => !topic.isHeading).length,
-    0
-  );
-
-  const completedTopics = subject.units.reduce((acc, unit) => {
-    return (
-      acc +
-      unit.topics.filter(
-        (topic) =>
-          !topic.isHeading && progress[subjectId]?.[topic.id] === true
-      ).length
+    const totalTopics = subject.units.reduce(
+      (acc, unit) => acc + unit.topics.length,
+      0
     );
-  }, 0);
+    const completedTopics = subject.units.reduce((acc, unit) => {
+      return (
+        acc +
+        unit.topics.filter(
+          (topic) => progress[subjectId]?.[topic.id] === true
+        ).length
+      );
+    }, 0);
 
-  return totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
-};
-
+    return totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
+  };
 
   const overallProgress = useMemo(() => {
     const totalProgress = subjects.reduce(

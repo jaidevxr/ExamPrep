@@ -26,7 +26,8 @@ export const ExamCalendar = () => {
   
   subjects.forEach((subject) => {
     const date = new Date(subject.examDate);
-    const dateKey = date.toISOString().split('T')[0]; // YYYY-MM-DD format
+    // Use local date to avoid timezone offset issues
+    const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     dateToSubjectMap[dateKey] = subject.id;
   });
 
@@ -75,7 +76,8 @@ export const ExamCalendar = () => {
   const handleDayClick = (date: Date | undefined) => {
     if (!date) return;
     
-    const dateKey = date.toISOString().split('T')[0];
+    // Use local date to avoid timezone offset issues
+    const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     const subjectId = dateToSubjectMap[dateKey];
     
     if (subjectId) {
@@ -90,10 +92,17 @@ export const ExamCalendar = () => {
   const calculateTimeLeft = (examDate: string) => {
     const now = new Date();
     const exam = new Date(examDate);
-    exam.setHours(14, 0, 0, 0);
+    exam.setHours(14, 0, 0, 0); // Exam starts at 2 PM
+    
+    const examEnd = new Date(exam);
+    examEnd.setHours(17, 0, 0, 0); // Exam ends at 5 PM (3 hours duration)
     
     const diff = exam.getTime() - now.getTime();
     
+    // If exam has ended
+    if (now.getTime() > examEnd.getTime()) return "Exam done!";
+    
+    // If exam is in progress
     if (diff <= 0) return "Exam started!";
     
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));

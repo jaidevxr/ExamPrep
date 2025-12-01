@@ -8,6 +8,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export const ArcadeNavbar = () => {
   const location = useLocation();
@@ -29,33 +35,40 @@ export const ArcadeNavbar = () => {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-sm minecraft-block border-t-4 border-border">
-      <nav className="container mx-auto px-4 py-3 max-w-4xl">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 flex-1 justify-around">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const active = isActive(item.path);
-            
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`
-                  flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-4 py-2 font-black text-[10px] sm:text-xs arcade-text
-                  transition-all duration-200 border-2 flex-1
-                  ${active 
-                    ? "bg-primary text-primary-foreground border-primary" 
-                    : "bg-muted/50 text-muted-foreground border-border hover:bg-muted hover:border-primary/50"
-                  }
-                `}
-              >
-                <Icon className="h-4 w-4" />
-                <span>{item.label.toUpperCase()}</span>
-              </Link>
-            );
-          })}
-          </div>
+    <TooltipProvider delayDuration={0}>
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-sm minecraft-block border-t-4 border-border">
+        <nav className="container mx-auto px-4 py-3 max-w-4xl">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 flex-1 justify-around">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.path);
+              
+              return (
+                <Tooltip key={item.path}>
+                  <TooltipTrigger asChild>
+                    <Link
+                      to={item.path}
+                      className={`
+                        flex flex-row items-center justify-center gap-2 px-3 sm:px-4 py-2 font-black text-xs arcade-text
+                        transition-all duration-200 border-2 flex-1
+                        ${active 
+                          ? "bg-primary text-primary-foreground border-primary" 
+                          : "bg-muted/50 text-muted-foreground border-border hover:bg-muted hover:border-primary/50"
+                        }
+                      `}
+                    >
+                      <Icon className="h-4 w-4 sm:h-4 sm:w-4" />
+                      <span className="hidden sm:inline">{item.label.toUpperCase()}</span>
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="sm:hidden minecraft-block bg-card border-2 border-border">
+                    <p className="font-black text-xs">{item.label.toUpperCase()}</p>
+                  </TooltipContent>
+                </Tooltip>
+              );
+            })}
+            </div>
 
           {/* Profile Menu */}
           <DropdownMenu>
@@ -90,6 +103,6 @@ export const ArcadeNavbar = () => {
         </div>
       </nav>
     </div>
+    </TooltipProvider>
   );
 };
-

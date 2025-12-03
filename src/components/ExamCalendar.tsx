@@ -6,18 +6,12 @@ import { Button } from "@/components/ui/button";
 import { subjects, Subject } from "@/data/subjects";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useCloudProgress } from "@/hooks/useCloudProgress";
 import { Calendar as CalendarIcon, Clock, TrendingUp, BookOpen, CheckCircle2, Circle, Zap } from "lucide-react";
-
-interface SubjectProgress {
-  [subjectId: string]: {
-    [topicId: string]: boolean;
-  };
-}
 
 export const ExamCalendar = () => {
   const navigate = useNavigate();
-  const [progress, setProgress] = useLocalStorage<SubjectProgress>("subject-progress", {});
+  const { progress, updateProgress } = useCloudProgress();
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
@@ -153,17 +147,8 @@ export const ExamCalendar = () => {
   const toggleTopicCompletion = (topicId: string) => {
     if (!selectedSubject) return;
     
-    setProgress((prev) => {
-      const subjectProgress = prev[selectedSubject.id] || {};
-      const newProgress = {
-        ...prev,
-        [selectedSubject.id]: {
-          ...subjectProgress,
-          [topicId]: !subjectProgress[topicId],
-        },
-      };
-      return newProgress;
-    });
+    const currentStatus = progress[selectedSubject.id]?.[topicId] ?? false;
+    updateProgress(selectedSubject.id, topicId, !currentStatus);
   };
 
   const getImportantTopics = () => {

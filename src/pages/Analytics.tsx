@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { ArcadeNavbar } from "@/components/ArcadeNavbar";
 import { Card } from "@/components/ui/card";
+import { StudyHeatmap } from "@/components/StudyHeatmap";
 import { subjects } from "@/data/subjects";
 import { useCloudProgress } from "@/hooks/useCloudProgress";
 import { useStudyStreak } from "@/hooks/useStudyStreak";
@@ -190,6 +191,9 @@ const Analytics = () => {
               </div>
             </Card>
           </div>
+
+          {/* Study Activity Heatmap */}
+          <StudyHeatmap />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Progress by Subject - Bar Chart */}

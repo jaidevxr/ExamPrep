@@ -1,6 +1,3 @@
-<p align="center">
-  <img src="public/pwa-512x512.png" alt="StudyArcade Logo" width="120" height="120">
-</p>
 
 <h1 align="center">Exam Prep</h1>
 

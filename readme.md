@@ -272,10 +272,10 @@ src/
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/studyarcade.git
+git clone https://github.com/jaidevxr/ExamPrep.git
 
 # Navigate to project directory
-cd studyarcade
+cd ExamPrep
 
 # Install dependencies
 npm install
@@ -314,7 +314,7 @@ npm run preview
 
 1. Visit the deployed app
 2. Click the install icon in the address bar
-3. Or click "Install StudyArcade" in the app prompt
+3. Or click "Install ExamPrep" in the app prompt
 
 ### Mobile (iOS)
 

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useProfile } from '@/hooks/useProfile';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCloudProgress } from '@/hooks/useCloudProgress';
@@ -19,11 +19,20 @@ export default function ProfileSettings() {
   const { progress } = useCloudProgress();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [username, setUsername] = useState(profile?.username || '');
-  const [focusDuration, setFocusDuration] = useState(profile?.default_focus_duration || 25);
-  const [breakDuration, setBreakDuration] = useState(profile?.default_break_duration || 5);
+  const [username, setUsername] = useState('');
+  const [focusDuration, setFocusDuration] = useState(25);
+  const [breakDuration, setBreakDuration] = useState(5);
   const [isUpdatingUsername, setIsUpdatingUsername] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  // Sync state when profile loads
+  useEffect(() => {
+    if (profile) {
+      setUsername(profile.username || '');
+      setFocusDuration(profile.default_focus_duration || 25);
+      setBreakDuration(profile.default_break_duration || 5);
+    }
+  }, [profile]);
 
   const handleUsernameUpdate = async () => {
     if (username === profile?.username) return;

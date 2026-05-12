@@ -87,6 +87,19 @@ export const useProfile = () => {
       return false;
     }
 
+    // Pre-check: is this username already taken by someone else?
+    const { data: existing } = await supabase
+      .from('profiles')
+      .select('id')
+      .ilike('username', username)
+      .neq('id', user.id)
+      .limit(1);
+
+    if (existing && existing.length > 0) {
+      toast.error('Username already taken, pick another!');
+      return false;
+    }
+
     const optimisticProfile = profile ? { ...profile, username } : null;
     setProfile(optimisticProfile);
 

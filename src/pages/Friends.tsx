@@ -1,12 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ArcadeNavbar } from "@/components/ArcadeNavbar";
 import { ProgressComparison } from "@/components/ProgressComparison";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useFriends, FriendProfile, Friendship } from "@/hooks/useFriends";
-import { useCloudProgress } from "@/hooks/useCloudProgress";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useFriends, FriendProfile, Friendship, FriendProgress } from "@/hooks/useFriends";
 import { subjects } from "@/data/subjects";
 import {
   Users,
@@ -15,13 +20,13 @@ import {
   Copy,
   Check,
   X,
-  Trophy,
-  TrendingUp,
   Clock,
   Loader2,
   BarChart3,
   ArrowLeft,
   Share2,
+  MoreVertical,
+  UserMinus,
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -38,9 +43,9 @@ const Friends = () => {
     sendRequest,
     acceptRequest,
     removeFriend,
+    getFriendProgress,
     calculateSubjectProgress,
   } = useFriends();
-  const { progress: myProgress } = useCloudProgress();
 
   const [searchId, setSearchId] = useState("");
   const [searchResult, setSearchResult] = useState<FriendProfile | null>(null);
@@ -51,11 +56,30 @@ const Friends = () => {
   const [sendingRequest, setSendingRequest] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [friendProgressCache, setFriendProgressCache] = useState<Record<string, FriendProgress>>({});
+  const [friendProgressLoading, setFriendProgressLoading] = useState<Record<string, boolean>>({});
+  const loadedFriendIds = useRef(new Set<string>());
+
+  // Load friend progress when friends list changes
+  useEffect(() => {
+    if (!friends || friends.length === 0) return;
+
+    friends.forEach(async (friendship) => {
+      const fid = friendship.friend.id;
+      if (loadedFriendIds.current.has(fid)) return;
+      loadedFriendIds.current.add(fid);
+
+      setFriendProgressLoading((prev) => ({ ...prev, [fid]: true }));
+      const progress = await getFriendProgress(fid);
+      setFriendProgressCache((prev) => ({ ...prev, [fid]: progress }));
+      setFriendProgressLoading((prev) => ({ ...prev, [fid]: false }));
+    });
+  }, [friends, getFriendProgress]);
 
   // Auto-search from share link (?add=STUDY_ID)
   useEffect(() => {
     const addId = searchParams.get("add");
-    if (addId && addId.length === 6 && !loading) {
+    if (addId && addId.length === 8 && !loading) {
       setSearchId(addId.toUpperCase());
       // Clear the param so it doesn't re-trigger
       setSearchParams({}, { replace: true });
@@ -123,13 +147,7 @@ const Friends = () => {
     return { status: "offline", label: `${diffDays}d ago`, color: "bg-muted-foreground/50" };
   };
 
-  // Calculate overall progress for leaderboard
-  const getOverallProgress = (progressData: Record<string, Record<string, boolean>>) => {
-    const total = subjects.reduce((acc, s) => acc + calculateSubjectProgress(s.id, progressData), 0);
-    return Math.round(total / subjects.length);
-  };
 
-  const myOverallProgress = getOverallProgress(myProgress);
 
   if (loading) {
     return (
@@ -233,14 +251,14 @@ const Friends = () => {
               <Input
                 value={searchId}
                 onChange={(e) => setSearchId(e.target.value.toUpperCase())}
-                placeholder="Enter Study ID (e.g. JA7X2K)"
+                placeholder="Enter Study ID (e.g. B533FLHI)"
                 className="h-11 font-bold tracking-wider uppercase"
-                maxLength={6}
+                maxLength={8}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               />
               <Button
                 onClick={handleSearch}
-                disabled={searching || searchId.length < 6}
+                disabled={searching || searchId.length < 8}
                 className="h-11 font-black arcade-text border-2 px-6"
               >
                 {searching ? (
@@ -379,75 +397,7 @@ const Friends = () => {
             </Card>
           )}
 
-          {/* Leaderboard */}
-          {friends.length > 0 && (
-            <Card className="p-4 bg-card/95 minecraft-block">
-              <div className="flex items-center gap-2 mb-4">
-                <Trophy className="h-4 w-4 text-warning" />
-                <h2 className="text-sm font-black arcade-text uppercase tracking-wider">
-                  🏆 Leaderboard
-                </h2>
-              </div>
-              <div className="space-y-2">
-                {[
-                  { name: "You", progress: myOverallProgress, isMe: true, friend: null as Friendship | null },
-                  ...friends.map((f) => ({
-                    name: f.friend.username || "Unknown",
-                    progress: 0, // Will be loaded on compare
-                    isMe: false,
-                    friend: f,
-                  })),
-                ]
-                  .sort((a, b) => b.progress - a.progress)
-                  .map((entry, index) => {
-                    const medals = ["🥇", "🥈", "🥉"];
-                    const medal = index < 3 ? medals[index] : `${index + 1}.`;
-
-                    return (
-                      <div
-                        key={entry.isMe ? "me" : entry.friend?.id}
-                        className={`flex items-center gap-3 p-3 rounded border-2 transition-colors ${
-                          entry.isMe
-                            ? "bg-primary/10 border-primary/30"
-                            : "bg-muted/20 border-border hover:bg-muted/40"
-                        }`}
-                      >
-                        <span className="text-lg w-8 text-center">{medal}</span>
-                        <div className="flex-1 min-w-0">
-                          <p className={`font-black text-sm ${entry.isMe ? "text-primary" : ""}`}>
-                            {entry.name}
-                            {entry.isMe && (
-                              <span className="text-[9px] ml-2 text-muted-foreground">(YOU)</span>
-                            )}
-                          </p>
-                        </div>
-                        {entry.isMe ? (
-                          <span className="text-sm font-black text-primary arcade-text">
-                            {entry.progress}%
-                          </span>
-                        ) : (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              if (entry.friend) {
-                                setSelectedFriend(entry.friend.friend);
-                                setCompareOpen(true);
-                              }
-                            }}
-                            className="h-8 text-xs font-black arcade-text border-2"
-                          >
-                            <BarChart3 className="h-3 w-3 mr-1" /> COMPARE
-                          </Button>
-                        )}
-                      </div>
-                    );
-                  })}
-              </div>
-            </Card>
-          )}
-
-          {/* Friends List */}
+          {/* Friends List with Progress */}
           <Card className="p-4 bg-card/95 minecraft-block">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
@@ -469,62 +419,111 @@ const Friends = () => {
                 </div>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {friends.map((friendship) => {
                   const online = getOnlineStatus(friendship.friend.last_seen);
+                  const friendProg = friendProgressCache[friendship.friend.id];
+                  const friendProgLoading = !friendProg && friendProgressLoading[friendship.friend.id];
 
                   return (
                     <div
                       key={friendship.id}
-                      className="flex items-center justify-between gap-2 p-3 bg-muted/20 rounded border-2 border-border hover:bg-muted/40 transition-colors"
+                      className="p-3 bg-muted/20 rounded border-2 border-border hover:bg-muted/30 transition-colors space-y-3"
                     >
-                      <div className="flex items-center gap-3 min-w-0 flex-1">
-                        <div className="relative flex-shrink-0">
-                          <Avatar className="h-10 w-10 border-2 border-border">
-                            <AvatarImage src={friendship.friend.avatar_url || undefined} />
-                            <AvatarFallback className="bg-muted font-black">
-                              {friendship.friend.username?.[0]?.toUpperCase() || "?"}
-                            </AvatarFallback>
-                          </Avatar>
-                          {/* Online status dot */}
-                          <div
-                            className={`absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-card ${online.color}`}
-                          />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-black text-sm truncate">{friendship.friend.username || "Unknown"}</p>
-                          <div className="flex items-center gap-1.5">
-                            <p className="text-[9px] text-muted-foreground uppercase tracking-wider">
-                              {online.label}
-                            </p>
-                            <span className="text-[9px] text-muted-foreground">•</span>
-                            <p className="text-[9px] text-muted-foreground uppercase tracking-wider">
-                              {friendship.friend.study_id}
-                            </p>
+                      {/* Friend header row */}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          <div className="relative flex-shrink-0">
+                            <Avatar className="h-10 w-10 border-2 border-border">
+                              <AvatarImage src={friendship.friend.avatar_url || undefined} />
+                              <AvatarFallback className="bg-muted font-black">
+                                {friendship.friend.username?.[0]?.toUpperCase() || "?"}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div
+                              className={`absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-card ${online.color}`}
+                            />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-black text-sm truncate">{friendship.friend.username || "Unknown"}</p>
+                            <div className="flex items-center gap-1.5">
+                              <p className="text-[9px] text-muted-foreground uppercase tracking-wider">
+                                {online.label}
+                              </p>
+                              <span className="text-[9px] text-muted-foreground">•</span>
+                              <p className="text-[9px] text-muted-foreground uppercase tracking-wider">
+                                {friendship.friend.study_id}
+                              </p>
+                            </div>
                           </div>
                         </div>
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              setSelectedFriend(friendship.friend);
+                              setCompareOpen(true);
+                            }}
+                            className="h-8 sm:h-9 font-black arcade-text text-[10px] sm:text-xs border-2 px-2 sm:px-3"
+                          >
+                            <BarChart3 className="h-3 w-3 sm:mr-1" />
+                            <span className="hidden sm:inline">COMPARE</span>
+                          </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-8 sm:h-9 w-8 sm:w-9 p-0 text-muted-foreground"
+                              >
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="minecraft-block border-2">
+                              <DropdownMenuItem
+                                onClick={() => removeFriend(friendship.id)}
+                                className="text-destructive focus:text-destructive font-bold text-xs gap-2 cursor-pointer"
+                              >
+                                <UserMinus className="h-3.5 w-3.5" />
+                                Remove Friend
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1 flex-shrink-0">
-                        <Button
-                          size="sm"
-                          onClick={() => {
-                            setSelectedFriend(friendship.friend);
-                            setCompareOpen(true);
-                          }}
-                          className="h-8 sm:h-9 font-black arcade-text text-[10px] sm:text-xs border-2 px-2 sm:px-3"
-                        >
-                          <BarChart3 className="h-3 w-3 sm:mr-1" />
-                          <span className="hidden sm:inline">COMPARE</span>
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => removeFriend(friendship.id)}
-                          className="h-8 sm:h-9 w-8 sm:w-9 p-0 text-muted-foreground hover:text-destructive"
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
+
+                      {/* Subject progress bars */}
+                      {friendProgLoading ? (
+                        <div className="flex items-center justify-center py-2">
+                          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                          <span className="text-[10px] text-muted-foreground ml-2">Loading progress...</span>
+                        </div>
+                      ) : friendProg ? (
+                        <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+                          {subjects.map((subject) => {
+                            const pct = calculateSubjectProgress(subject.id, friendProg);
+                            return (
+                              <div key={subject.id} className="space-y-0.5">
+                                <div className="flex items-center justify-between">
+                                  <p className="text-[9px] font-bold text-muted-foreground truncate pr-1">
+                                    {subject.code}
+                                  </p>
+                                  <p className="text-[9px] font-black text-primary">{pct}%</p>
+                                </div>
+                                <div className="h-1.5 bg-muted/50 rounded-full overflow-hidden">
+                                  <div
+                                    className="h-full rounded-full transition-all duration-700 ease-out"
+                                    style={{
+                                      width: `${pct}%`,
+                                      background: pct > 70 ? "hsl(var(--success))" : pct > 30 ? "hsl(var(--primary))" : "hsl(var(--warning))",
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : null}
                     </div>
                   );
                 })}

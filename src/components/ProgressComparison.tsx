@@ -157,33 +157,44 @@ export const ProgressComparison = ({ open, onOpenChange, friend }: ProgressCompa
               <h3 className="text-xs font-black arcade-text text-primary mb-3 uppercase tracking-wider">
                 📊 Skill Radar
               </h3>
-              <div className="h-[280px]">
+              <div className="h-[320px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
-                    <PolarGrid stroke="hsl(var(--border))" />
+                  <RadarChart cx="50%" cy="48%" outerRadius="65%" data={radarData}>
+                    <PolarGrid stroke="hsl(var(--border))" strokeOpacity={0.6} />
                     <PolarAngleAxis
                       dataKey="subject"
-                      tick={{ fontSize: 10, fontWeight: "bold", fill: "hsl(var(--muted-foreground))" }}
+                      tick={{ fontSize: 11, fontWeight: 800, fill: "hsl(var(--foreground))" }}
+                      tickLine={false}
                     />
-                    <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 8 }} />
+                    <PolarRadiusAxis
+                      angle={90}
+                      domain={[0, 100]}
+                      tick={{ fontSize: 8, fill: "hsl(var(--muted-foreground))" }}
+                      axisLine={false}
+                      tickCount={5}
+                    />
                     <Radar
                       name="You"
                       dataKey="You"
                       stroke="hsl(var(--primary))"
                       fill="hsl(var(--primary))"
-                      fillOpacity={0.3}
-                      strokeWidth={2}
+                      fillOpacity={0.25}
+                      strokeWidth={2.5}
+                      dot={{ r: 3, fill: "hsl(var(--primary))", strokeWidth: 0 }}
                     />
                     <Radar
                       name={friend.username || "Friend"}
                       dataKey="Friend"
                       stroke="hsl(var(--secondary))"
                       fill="hsl(var(--secondary))"
-                      fillOpacity={0.3}
-                      strokeWidth={2}
+                      fillOpacity={0.25}
+                      strokeWidth={2.5}
+                      dot={{ r: 3, fill: "hsl(var(--secondary))", strokeWidth: 0 }}
                     />
                     <Legend
-                      wrapperStyle={{ fontSize: "11px", fontWeight: "bold" }}
+                      wrapperStyle={{ fontSize: "11px", fontWeight: "bold", paddingTop: "8px" }}
+                      iconType="circle"
+                      iconSize={8}
                     />
                   </RadarChart>
                 </ResponsiveContainer>

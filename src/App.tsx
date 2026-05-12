@@ -5,16 +5,16 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { MusicPlayerProvider } from "@/contexts/MusicPlayerContext";
-import { AlphaLearningProvider } from "@/contexts/AlphaLearningContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { GlobalMusicPlayer } from "@/components/GlobalMusicPlayer";
-import { AlphaLearningMode } from "@/components/AlphaLearningMode";
+import { CloudProgressProvider } from "@/hooks/useCloudProgress";
 import Dashboard from "./pages/Dashboard";
 import Subjects from "./pages/Subjects";
 import SubjectDetail from "./pages/SubjectDetail";
 import Planner from "./pages/Planner";
 import EnhancedChat from "./pages/EnhancedChat";
 import Analytics from "./pages/Analytics";
+import Friends from "./pages/Friends";
 import ProfileSettings from "./pages/ProfileSettings";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
@@ -29,8 +29,8 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <MusicPlayerProvider>
-          <AlphaLearningProvider>
             <AuthProvider>
+            <CloudProgressProvider>
             <Routes>
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
@@ -75,6 +75,14 @@ const App = () => (
               }
             />
             <Route
+              path="/friends"
+              element={
+                <ProtectedRoute>
+                  <Friends />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/chat"
               element={
                 <ProtectedRoute>
@@ -93,9 +101,8 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
           <GlobalMusicPlayer />
-          <AlphaLearningMode />
+        </CloudProgressProvider>
         </AuthProvider>
-          </AlphaLearningProvider>
         </MusicPlayerProvider>
       </BrowserRouter>
     </TooltipProvider>

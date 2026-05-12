@@ -117,14 +117,14 @@ export const ExamCalendar = () => {
     if (!subject) return 0;
     
     const totalTopics = subject.units.reduce(
-      (acc, unit) => acc + unit.topics.length,
+      (acc, unit) => acc + unit.topics.filter((topic) => !topic.isHeading).length,
       0
     );
     const completedTopics = subject.units.reduce((acc, unit) => {
       return (
         acc +
         unit.topics.filter(
-          (topic) => progress[subjectId]?.[topic.id] === true
+          (topic) => !topic.isHeading && progress[subjectId]?.[topic.id] === true
         ).length
       );
     }, 0);
@@ -336,7 +336,7 @@ export const ExamCalendar = () => {
                 <div className="p-2 bg-muted/40 rounded border border-border">
                   <p className="text-[9px] text-muted-foreground uppercase tracking-wider font-bold">Topics</p>
                   <p className="text-lg font-black text-secondary arcade-text">
-                    {selectedSubject.units.reduce((acc, unit) => acc + unit.topics.length, 0)}
+                    {selectedSubject.units.reduce((acc, unit) => acc + unit.topics.filter(t => !t.isHeading).length, 0)}
                   </p>
                 </div>
               </div>

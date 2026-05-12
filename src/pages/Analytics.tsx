@@ -17,14 +17,14 @@ const Analytics = () => {
     if (!subject) return 0;
 
     const totalTopics = subject.units.reduce(
-      (acc, unit) => acc + unit.topics.length,
+      (acc, unit) => acc + unit.topics.filter((topic) => !topic.isHeading).length,
       0
     );
     const completedTopics = subject.units.reduce((acc, unit) => {
       return (
         acc +
         unit.topics.filter(
-          (topic) => progress[subjectId]?.[topic.id] === true
+          (topic) => !topic.isHeading && progress[subjectId]?.[topic.id] === true
         ).length
       );
     }, 0);
@@ -35,14 +35,14 @@ const Analytics = () => {
   const analyticsData = useMemo(() => {
     const subjectData = subjects.map((subject) => {
       const totalTopics = subject.units.reduce(
-        (acc, unit) => acc + unit.topics.length,
+        (acc, unit) => acc + unit.topics.filter((topic) => !topic.isHeading).length,
         0
       );
       const completedTopics = subject.units.reduce((acc, unit) => {
         return (
           acc +
           unit.topics.filter(
-            (topic) => progress[subject.id]?.[topic.id] === true
+            (topic) => !topic.isHeading && progress[subject.id]?.[topic.id] === true
           ).length
         );
       }, 0);

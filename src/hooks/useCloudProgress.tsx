@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -9,7 +9,15 @@ interface SubjectProgress {
   };
 }
 
-export const useCloudProgress = () => {
+interface CloudProgressContextType {
+  progress: SubjectProgress;
+  updateProgress: (subjectId: string, topicId: string, completed: boolean) => Promise<void>;
+  loading: boolean;
+}
+
+const CloudProgressContext = createContext<CloudProgressContextType | undefined>(undefined);
+
+export const CloudProgressProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
   const [progress, setProgress] = useState<SubjectProgress>({});
   const [loading, setLoading] = useState(true);
@@ -140,5 +148,17 @@ export const useCloudProgress = () => {
     }
   };
 
-  return { progress, updateProgress, loading };
+  return (
+    <CloudProgressContext.Provider value={{ progress, updateProgress, loading }}>
+      {children}
+    </CloudProgressContext.Provider>
+  );
+};
+
+export const useCloudProgress = () => {
+  const context = useContext(CloudProgressContext);
+  if (!context) {
+    throw new Error('useCloudProgress must be used within CloudProgressProvider');
+  }
+  return context;
 };

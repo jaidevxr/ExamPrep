@@ -1,7 +1,5 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { useAlphaLearning } from "@/contexts/AlphaLearningContext";
-import { useMusicPlayer } from "@/contexts/MusicPlayerContext";
 import { subjects } from "@/data/subjects";
 import { ExamCountdown } from "@/components/ExamCountdown";
 import { ArcadeTimer } from "@/components/ArcadeTimer";
@@ -9,7 +7,6 @@ import { MusicPlayer } from "@/components/MusicPlayer";
 import { DynamicIsland } from "@/components/DynamicIsland";
 import { ExamCalendar } from "@/components/ExamCalendar";
 import { ArcadeNavbar } from "@/components/ArcadeNavbar";
-import { AlphaLearningSetup } from "@/components/AlphaLearningSetup";
 import { Card } from "@/components/ui/card";
 import { useCloudProgress } from "@/hooks/useCloudProgress";
 import { useStudyStreak } from "@/hooks/useStudyStreak";
@@ -20,7 +17,6 @@ import {
   TrendingUp,
   Calendar,
   Clock,
-  Zap,
   Loader2
 } from "lucide-react";
 
@@ -34,23 +30,20 @@ const Dashboard = () => {
   const { progress, loading } = useCloudProgress();
   const { streak: studyStreak } = useStudyStreak();
   const [viewMode, setViewMode] = useState<"card" | "list">("card");
-  const [alphaSetupOpen, setAlphaSetupOpen] = useState(false);
-  const { startSession, isActive } = useAlphaLearning();
-  const { setIsPlaying } = useMusicPlayer();
 
   const calculateProgress = (subjectId: string) => {
     const subject = subjects.find((s) => s.id === subjectId);
     if (!subject) return 0;
 
     const totalTopics = subject.units.reduce(
-      (acc, unit) => acc + unit.topics.length,
+      (acc, unit) => acc + unit.topics.filter((topic) => !topic.isHeading).length,
       0
     );
     const completedTopics = subject.units.reduce((acc, unit) => {
       return (
         acc +
         unit.topics.filter(
-          (topic) => progress[subjectId]?.[topic.id] === true
+          (topic) => !topic.isHeading && progress[subjectId]?.[topic.id] === true
         ).length
       );
     }, 0);
@@ -93,19 +86,6 @@ const Dashboard = () => {
 
   return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
   }, [upcomingExam]);
-
-  const handleStartAlpha = (duration: number, subjectId: string, musicEnabled: boolean) => {
-    startSession({
-      duration,
-      subjectId,
-      startTime: Date.now(),
-      isMusicEnabled: musicEnabled,
-    });
-  };
-
-  if (isActive) {
-    return null; // Alpha Learning Mode component will take over
-  }
 
   return (
     <>
@@ -232,27 +212,6 @@ const Dashboard = () => {
             {/* Arcade Timer, Music & Exam Calendar */}
             <div className="space-y-4">
               <h2 className="text-base sm:text-xl font-black arcade-text text-secondary">⚡ FOCUS ZONE</h2>
-              
-              {/* Alpha Learning Button */}
-              <Card 
-                className="p-4 bg-gradient-to-br from-warning/20 to-warning/5 border-warning/30 cursor-pointer hover:shadow-lg transition-all minecraft-block"
-                onClick={() => setAlphaSetupOpen(true)}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-warning text-warning-foreground p-2 rounded-lg">
-                      <Zap className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="font-black arcade-text text-sm">ALPHA LEARNING</p>
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
-                        Distraction-Free Study Mode
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-2xl">⚡</div>
-                </div>
-              </Card>
 
               <ArcadeTimer />
               <MusicPlayer />
@@ -262,13 +221,6 @@ const Dashboard = () => {
           </div>
         )}
       </div>
-
-      {/* Alpha Learning Setup Dialog */}
-      <AlphaLearningSetup
-        open={alphaSetupOpen}
-        onOpenChange={setAlphaSetupOpen}
-        onStart={handleStartAlpha}
-      />
     </>
   );
 };

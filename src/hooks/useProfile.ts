@@ -7,6 +7,8 @@ interface Profile {
   id: string;
   username: string | null;
   avatar_url: string | null;
+  study_id: string | null;
+  last_seen: string | null;
   default_focus_duration: number | null;
   default_break_duration: number | null;
   created_at: string | null;

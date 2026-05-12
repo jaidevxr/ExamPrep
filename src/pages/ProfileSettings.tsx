@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Loader2, Upload, User, Mail, Calendar, Target, Flame, ArrowLeft } from 'lucide-react';
+import { Loader2, Upload, User, Mail, Calendar, Target, Flame, ArrowLeft, Copy, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { subjects } from '@/data/subjects';
 
@@ -23,6 +23,7 @@ export default function ProfileSettings() {
   const [focusDuration, setFocusDuration] = useState(profile?.default_focus_duration || 25);
   const [breakDuration, setBreakDuration] = useState(profile?.default_break_duration || 5);
   const [isUpdatingUsername, setIsUpdatingUsername] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const handleUsernameUpdate = async () => {
     if (username === profile?.username) return;
@@ -47,10 +48,18 @@ export default function ProfileSettings() {
   }, 0);
 
   const totalTopics = subjects.reduce((acc, subject) => {
-    return acc + subject.units.reduce((unitAcc, unit) => unitAcc + unit.topics.length, 0);
+    return acc + subject.units.reduce((unitAcc, unit) => unitAcc + unit.topics.filter(t => !t.isHeading).length, 0);
   }, 0);
 
   const completionPercentage = totalTopics > 0 ? Math.round((totalCompleted / totalTopics) * 100) : 0;
+
+  const handleCopyStudyId = () => {
+    if (profile?.study_id) {
+      navigator.clipboard.writeText(profile.study_id);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   if (loading) {
     return (
@@ -147,6 +156,35 @@ export default function ProfileSettings() {
                 </div>
                 <p className="text-xs text-muted-foreground">3-20 characters</p>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Study ID */}
+        <Card className="border-primary/20">
+          <CardHeader>
+            <CardTitle className="text-base sm:text-lg">Study ID</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">Share this with friends so they can add you as a study buddy</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-4">
+              <div className="flex-1 bg-muted/50 rounded-lg p-4 border-2 border-dashed border-primary/30">
+                <p className="text-2xl font-black arcade-text text-primary tracking-[0.3em] text-center">
+                  {profile?.study_id || 'Loading...'}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                onClick={handleCopyStudyId}
+                disabled={!profile?.study_id}
+                className="h-14 px-6"
+              >
+                {copied ? (
+                  <><Check className="h-5 w-5 mr-2" /> Copied!</>
+                ) : (
+                  <><Copy className="h-5 w-5 mr-2" /> Copy</>
+                )}
+              </Button>
             </div>
           </CardContent>
         </Card>

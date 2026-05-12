@@ -38,6 +38,48 @@ export type Database = {
         }
         Relationships: []
       }
+      friendships: {
+        Row: {
+          id: string
+          requester_id: string
+          addressee_id: string
+          status: string
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          requester_id: string
+          addressee_id: string
+          status?: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          requester_id?: string
+          addressee_id?: string
+          status?: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "friendships_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friendships_addressee_id_fkey"
+            columns: ["addressee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           content: string
@@ -77,6 +119,8 @@ export type Database = {
           default_break_duration: number | null
           default_focus_duration: number | null
           id: string
+          last_seen: string | null
+          study_id: string | null
           updated_at: string | null
           username: string | null
         }
@@ -86,6 +130,8 @@ export type Database = {
           default_break_duration?: number | null
           default_focus_duration?: number | null
           id: string
+          last_seen?: string | null
+          study_id?: string | null
           updated_at?: string | null
           username?: string | null
         }
@@ -95,6 +141,8 @@ export type Database = {
           default_break_duration?: number | null
           default_focus_duration?: number | null
           id?: string
+          last_seen?: string | null
+          study_id?: string | null
           updated_at?: string | null
           username?: string | null
         }

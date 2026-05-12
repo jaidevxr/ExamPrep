@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, BookOpen, Calendar, BarChart3, Bot, LogOut, User, Settings, Users } from "lucide-react";
+import { Home, BookOpen, Calendar, BarChart3, Bot, LogOut, User, Settings, Users, MessageSquare } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +25,7 @@ export const ArcadeNavbar = () => {
     { path: "/planner", icon: Calendar, label: "Planner" },
     { path: "/analytics", icon: BarChart3, label: "Analytics" },
     { path: "/friends", icon: Users, label: "Buddies" },
+    { path: "/messages", icon: MessageSquare, label: "Chat" },
     { path: "/chat", icon: Bot, label: "AI Chat" },
   ];
 

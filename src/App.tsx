@@ -15,6 +15,7 @@ import Planner from "./pages/Planner";
 import EnhancedChat from "./pages/EnhancedChat";
 import Analytics from "./pages/Analytics";
 import Friends from "./pages/Friends";
+import Messages from "./pages/Messages";
 import ProfileSettings from "./pages/ProfileSettings";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
@@ -79,6 +80,22 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Friends />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/messages"
+              element={
+                <ProtectedRoute>
+                  <Messages />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/messages/:friendId"
+              element={
+                <ProtectedRoute>
+                  <Messages />
                 </ProtectedRoute>
               }
             />

@@ -27,6 +27,7 @@ import {
   Share2,
   MoreVertical,
   UserMinus,
+  MessageSquare,
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -458,6 +459,15 @@ const Friends = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-1 flex-shrink-0">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => navigate(`/messages/${friendship.friend.id}`)}
+                            className="h-8 sm:h-9 font-black arcade-text text-[10px] sm:text-xs border-2 px-2 sm:px-3"
+                          >
+                            <MessageSquare className="h-3 w-3 sm:mr-1" />
+                            <span className="hidden sm:inline">CHAT</span>
+                          </Button>
                           <Button
                             size="sm"
                             onClick={() => {

@@ -1,6 +1,8 @@
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfile } from '@/hooks/useProfile';
+import { UsernamePrompt } from '@/components/UsernamePrompt';
 import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {
@@ -8,16 +10,24 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const { profile, loading: profileLoading } = useProfile();
   const navigate = useNavigate();
+  const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!authLoading && !user) {
       navigate('/auth');
     }
-  }, [user, loading, navigate]);
+  }, [user, authLoading, navigate]);
 
-  if (loading) {
+  useEffect(() => {
+    if (!authLoading && !profileLoading && user && profile && !profile.username) {
+      setShowPrompt(true);
+    }
+  }, [user, profile, authLoading, profileLoading]);
+
+  if (authLoading || profileLoading) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -32,5 +42,13 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     return null;
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <UsernamePrompt 
+        open={showPrompt} 
+        onSuccess={() => setShowPrompt(false)} 
+      />
+    </>
+  );
 };

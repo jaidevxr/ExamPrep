@@ -40,7 +40,7 @@ const Friends = () => {
     sentRequests,
     loading,
     myStudyId,
-    searchByStudyId,
+    searchUser,
     sendRequest,
     acceptRequest,
     removeFriend,
@@ -80,7 +80,7 @@ const Friends = () => {
   // Auto-search from share link (?add=STUDY_ID)
   useEffect(() => {
     const addId = searchParams.get("add");
-    if (addId && addId.length === 8 && !loading) {
+    if (addId && addId.length >= 3 && !loading) {
       setSearchId(addId.toUpperCase());
       // Clear the param so it doesn't re-trigger
       setSearchParams({}, { replace: true });
@@ -88,7 +88,7 @@ const Friends = () => {
       const timer = setTimeout(async () => {
         setSearching(true);
         setSearchResult(null);
-        const result = await searchByStudyId(addId);
+        const result = await searchUser(addId);
         setSearchResult(result);
         setSearching(false);
       }, 500);
@@ -100,7 +100,7 @@ const Friends = () => {
     if (!searchId.trim()) return;
     setSearching(true);
     setSearchResult(null);
-    const result = await searchByStudyId(searchId);
+    const result = await searchUser(searchId);
     setSearchResult(result);
     setSearching(false);
   };
@@ -251,15 +251,15 @@ const Friends = () => {
             <div className="flex gap-2">
               <Input
                 value={searchId}
-                onChange={(e) => setSearchId(e.target.value.toUpperCase())}
-                placeholder="Enter Study ID (e.g. B533FLHI)"
-                className="h-11 font-bold tracking-wider uppercase"
-                maxLength={8}
+                onChange={(e) => setSearchId(e.target.value)}
+                placeholder="Username or Study ID"
+                className="h-11 font-bold tracking-wider"
+                maxLength={20}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               />
               <Button
                 onClick={handleSearch}
-                disabled={searching || searchId.length < 8}
+                disabled={searching || searchId.length < 3}
                 className="h-11 font-black arcade-text border-2 px-6"
               >
                 {searching ? (

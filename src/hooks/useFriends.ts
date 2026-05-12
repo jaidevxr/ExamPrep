@@ -161,32 +161,54 @@ export const useFriends = () => {
     };
   }, [user, loadFriendships]);
 
-  // Search user by study ID
-  const searchByStudyId = async (studyId: string): Promise<FriendProfile | null> => {
+  // Search user by study ID or username
+  const searchUser = async (query: string): Promise<FriendProfile | null> => {
     if (!user) return null;
 
-    const normalizedId = studyId.toUpperCase().trim();
+    const trimmed = query.trim();
+    if (!trimmed) return null;
 
-    if (normalizedId === myStudyId) {
-      toast.error("That's your own Study ID!");
-      return null;
-    }
+    // Determine if it's a Study ID (8 uppercase alphanumeric) or username
+    const isStudyId = /^[A-Z0-9]{8}$/.test(trimmed.toUpperCase());
 
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, username, avatar_url, study_id, last_seen')
-        .eq('study_id', normalizedId)
-        .single();
+      let data: any = null;
+      let error: any = null;
+
+      if (isStudyId) {
+        const normalizedId = trimmed.toUpperCase();
+        if (normalizedId === myStudyId) {
+          toast.error("That's your own Study ID!");
+          return null;
+        }
+        const result = await supabase
+          .from('profiles')
+          .select('id, username, avatar_url, study_id, last_seen')
+          .eq('study_id', normalizedId)
+          .single();
+        data = result.data;
+        error = result.error;
+      } else {
+        // Search by username (case-insensitive exact match)
+        const result = await supabase
+          .from('profiles')
+          .select('id, username, avatar_url, study_id, last_seen')
+          .ilike('username', trimmed)
+          .neq('id', user.id)
+          .limit(1)
+          .single();
+        data = result.data;
+        error = result.error;
+      }
 
       if (error || !data) {
-        toast.error('No user found with that Study ID');
+        toast.error(isStudyId ? 'No user found with that Study ID' : 'No user found with that username');
         return null;
       }
 
       return data;
     } catch (error) {
-      toast.error('No user found with that Study ID');
+      toast.error('User not found');
       return null;
     }
   };
@@ -348,7 +370,7 @@ export const useFriends = () => {
     sentRequests,
     loading,
     myStudyId,
-    searchByStudyId,
+    searchUser,
     sendRequest,
     acceptRequest,
     removeFriend,

@@ -21,11 +21,9 @@ export const ArcadeNavbar = () => {
   
   const navItems = [
     { path: "/", icon: Home, label: "Dashboard" },
-    { path: "/subjects", icon: BookOpen, label: "Subjects" },
+    { path: "/friends", icon: Users, label: "Buddies" },
     { path: "/planner", icon: Calendar, label: "Planner" },
     { path: "/analytics", icon: BarChart3, label: "Analytics" },
-    { path: "/friends", icon: Users, label: "Buddies" },
-    { path: "/messages", icon: MessageSquare, label: "Chat" },
     { path: "/chat", icon: Bot, label: "AI Chat" },
   ];
 

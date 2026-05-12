@@ -82,6 +82,11 @@ export const useProfile = () => {
       return false;
     }
 
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      toast.error('Username can only contain letters, numbers, and underscores');
+      return false;
+    }
+
     const optimisticProfile = profile ? { ...profile, username } : null;
     setProfile(optimisticProfile);
 
@@ -91,7 +96,14 @@ export const useProfile = () => {
         .update({ username })
         .eq('id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === '23505') {
+          toast.error('Username already taken, pick another!');
+          setProfile(profile);
+          return false;
+        }
+        throw error;
+      }
       toast.success('Username updated');
       return true;
     } catch (error: any) {

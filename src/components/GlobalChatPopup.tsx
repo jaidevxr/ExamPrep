@@ -13,7 +13,7 @@ import {
 export const GlobalChatPopup = () => {
   const { activeFriend, closeChat, isOpen } = useChatPopup();
   const { user } = useAuth();
-  const { messages, loadingMessages, loadMessages, sendMessage } = useChat();
+  const { messages, loadingMessages, loadMessages, sendMessage, onlineUsers, typingUsers, setTyping } = useChat();
   const [messageText, setMessageText] = useState('');
   const [sending, setSending] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
@@ -78,14 +78,7 @@ export const GlobalChatPopup = () => {
     return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
   };
 
-  const {
-    messages,
-    loadingMessages,
-    sendMessage,
-    onlineUsers,
-    typingUsers,
-    setTyping,
-  } = useChat();
+
 
   const getOnlineStatus = (lastSeen: string | null, userId: string) => {
     if (onlineUsers[userId]) return { label: 'Online', isOnline: true };

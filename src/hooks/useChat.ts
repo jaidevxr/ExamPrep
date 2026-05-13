@@ -30,16 +30,16 @@ export const useChat = () => {
   const [loadingThreads, setLoadingThreads] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [activeFriendId, setActiveFriendId] = useState<string | null>(null);
-  const [onlineUsers, setOnlineUsers] = useState<Record<string, boolean>>({});
-  const [typingUsers, setTypingUsers] = useState<Record<string, boolean>>({});
-  const channelRef = useRef<any>(null);
-  const presenceChannelRef = useRef<any>(null);
   const activeFriendIdRef = useRef<string | null>(null);
+  const threadsRef = useRef<ChatThread[]>([]);
 
-  // Sync active friend ID to ref for realtime callback
   useEffect(() => {
     activeFriendIdRef.current = activeFriendId;
   }, [activeFriendId]);
+
+  useEffect(() => {
+    threadsRef.current = threads;
+  }, [threads]);
 
   // Load all chat threads (conversations with friends)
   const loadThreads = useCallback(async () => {
@@ -49,12 +49,10 @@ export const useChat = () => {
     }
 
     try {
-      // Build threads from friends list
       const chatThreads: ChatThread[] = await Promise.all(
         friends.map(async (f) => {
           const friendId = f.friend.id;
 
-          // Fetch the single most recent message for this thread
           const { data: lastMsgData } = await supabase
             .from('direct_messages')
             .select('*')
@@ -62,7 +60,6 @@ export const useChat = () => {
             .order('created_at', { ascending: false })
             .limit(1);
 
-          // Fetch unread count
           const { count: unreadCount } = await supabase
             .from('direct_messages')
             .select('*', { count: 'exact', head: true })
@@ -79,7 +76,6 @@ export const useChat = () => {
         })
       );
 
-      // Sort by latest message
       chatThreads.sort((a, b) => {
         if (!a.lastMessage && !b.lastMessage) return 0;
         if (!a.lastMessage) return 1;
@@ -105,7 +101,7 @@ export const useChat = () => {
     setLoadingMessages(true);
     setActiveFriendId(friendId);
 
-    // Optimistically update thread unread count locally so badge clears instantly
+    // Optimistically clear unread badge instantly
     setThreads((prev) =>
       prev.map((t) => (t.friend.id === friendId ? { ...t, unreadCount: 0 } : t))
     );
@@ -157,9 +153,7 @@ export const useChat = () => {
 
       if (error) throw error;
 
-      // Add to local messages
       setMessages((prev) => [...prev, data as DirectMessage]);
-      // Update thread
       setThreads((prev) =>
         prev.map((t) =>
           t.friend.id === receiverId ? { ...t, lastMessage: data as DirectMessage } : t
@@ -172,11 +166,6 @@ export const useChat = () => {
       return false;
     }
   }, [user]);
-  const threadsRef = useRef(threads);
-
-  useEffect(() => {
-    threadsRef.current = threads;
-  }, [threads]);
 
   // Realtime subscription for new messages
   useEffect(() => {
@@ -194,26 +183,22 @@ export const useChat = () => {
         (payload: any) => {
           const newMsg = payload.new as DirectMessage;
 
-          // Only process messages relevant to this user
           if (newMsg.sender_id !== user.id && newMsg.receiver_id !== user.id) return;
 
           const friendId = newMsg.sender_id === user.id ? newMsg.receiver_id : newMsg.sender_id;
           const currentActiveId = activeFriendIdRef.current;
 
-          // If we're in the active chat, add the message
           if (friendId === currentActiveId && newMsg.sender_id !== user.id) {
             setMessages((prev) => {
               if (prev.find((m) => m.id === newMsg.id)) return prev;
               return [...prev, newMsg];
             });
-            // Mark as read immediately
             supabase
               .from('direct_messages')
               .update({ read: true })
               .eq('id', newMsg.id)
               .then();
           } else if (newMsg.sender_id !== user.id) {
-            // Not in active chat — send browser push notification
             const senderThread = threadsRef.current.find(t => t.friend.id === newMsg.sender_id);
             const senderName = senderThread?.friend.username || 'Someone';
             sendNotification(
@@ -222,7 +207,6 @@ export const useChat = () => {
             );
           }
 
-          // Update threads
           setThreads((prev) => {
             const existing = prev.find((t) => t.friend.id === friendId);
             if (existing) {
@@ -243,25 +227,6 @@ export const useChat = () => {
                   if (!b.lastMessage) return -1;
                   return new Date(b.lastMessage.created_at).getTime() - new Date(a.lastMessage.created_at).getTime();
                 });
-            } else {
-              // Fetch user dynamically if not in threads
-              supabase.from('profiles').select('*').eq('id', friendId).single().then(({ data: friendData }) => {
-                if (friendData) {
-                  setThreads(currentThreads => {
-                    if (currentThreads.some(t => t.friend.id === friendId)) return currentThreads;
-                    return [{
-                      friend: friendData,
-                      lastMessage: newMsg,
-                      unreadCount: newMsg.sender_id !== user.id ? 1 : 0
-                    }, ...currentThreads].sort((a, b) => {
-                      if (!a.lastMessage && !b.lastMessage) return 0;
-                      if (!a.lastMessage) return 1;
-                      if (!b.lastMessage) return -1;
-                      return new Date(b.lastMessage.created_at).getTime() - new Date(a.lastMessage.created_at).getTime();
-                    });
-                  });
-                }
-              });
             }
             return prev;
           });
@@ -269,48 +234,9 @@ export const useChat = () => {
       )
       .subscribe();
 
-    // Presence subscription
-    presenceChannelRef.current = supabase.channel('online_users');
-    presenceChannelRef.current
-      .on('presence', { event: 'sync' }, () => {
-        const state = presenceChannelRef.current.presenceState();
-        const newOnline: Record<string, boolean> = {};
-        const newTyping: Record<string, boolean> = {};
-        
-        Object.values(state).forEach((presences: any) => {
-          presences.forEach((p: any) => {
-            newOnline[p.user_id] = true;
-            if (p.typing) newTyping[p.user_id] = true;
-          });
-        });
-        
-        setOnlineUsers(newOnline);
-        setTypingUsers(newTyping);
-      })
-      .subscribe(async (status: string) => {
-        if (status === 'SUBSCRIBED' && user) {
-          await presenceChannelRef.current.track({
-            user_id: user.id,
-            typing: false
-          });
-        }
-      });
-
     return () => {
       supabase.removeChannel(channel);
-      if (presenceChannelRef.current) {
-        supabase.removeChannel(presenceChannelRef.current);
-      }
     };
-  }, [user]);
-
-  const setTyping = useCallback(async (isTyping: boolean) => {
-    if (presenceChannelRef.current && user) {
-      await presenceChannelRef.current.track({
-        user_id: user.id,
-        typing: isTyping
-      });
-    }
   }, [user]);
 
   // Total unread count (for badge)
@@ -322,12 +248,9 @@ export const useChat = () => {
     loadingThreads,
     loadingMessages,
     totalUnread,
-    onlineUsers,
-    typingUsers,
     loadMessages,
     sendMessage,
     setActiveFriendId,
-    setTyping,
     reload: loadThreads,
   };
 };

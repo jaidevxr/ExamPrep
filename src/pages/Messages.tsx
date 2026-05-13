@@ -141,7 +141,7 @@ const Messages = () => {
         }`}>
           {/* Chat Header */}
           <div className="flex items-center gap-2 px-3 py-2 border-b bg-muted/50 flex-shrink-0">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/buddies")} className="h-7 w-7 flex-shrink-0">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/friends")} className="h-7 w-7 flex-shrink-0">
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <Avatar className="h-7 w-7 border border-border flex-shrink-0">
@@ -159,7 +159,7 @@ const Messages = () => {
             <Button variant="ghost" size="icon" onClick={() => setIsMaximized(!isMaximized)} className="h-7 w-7">
               {isMaximized ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => navigate("/buddies")} className="h-7 w-7">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/friends")} className="h-7 w-7">
               <X className="h-3.5 w-3.5" />
             </Button>
           </div>
@@ -252,7 +252,7 @@ const Messages = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate("/buddies")}
+              onClick={() => navigate("/friends")}
               className="h-9 w-9"
             >
               <ArrowLeft className="h-5 w-5" />

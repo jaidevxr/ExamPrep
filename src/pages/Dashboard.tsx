@@ -243,7 +243,7 @@ const Dashboard = () => {
             {/* Right Sidebar */}
             <div className="space-y-4">
               {/* Study Buddies Card */}
-              <Link to="/buddies">
+              <Link to="/friends">
                 <Card className="p-4 bg-card/95 minecraft-block card-hover group relative overflow-hidden">
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{ background: 'radial-gradient(circle at 50% 50%, hsla(var(--primary), 0.1), transparent 70%)' }} />
                   <div className="relative z-10">

@@ -65,8 +65,19 @@ function UserDetail({ u, admin }: { u: AdminUser; admin: ReturnType<typeof useAd
 
   const stats = calcUserProgress(progress);
 
+  const [displayName, setDisplayName] = useState(u.username || '');
+
+  // Sync display name when parent re-renders with updated user
+  useEffect(() => {
+    setDisplayName(u.username || '');
+    setEditName(u.username || '');
+  }, [u.username]);
+
   const handleSave = async () => {
-    await admin.updateUserProfile(u.id, { username: editName } as any);
+    const success = await admin.updateUserProfile(u.id, { username: editName } as any);
+    if (success) {
+      setDisplayName(editName);
+    }
     setEditing(false);
   };
 
@@ -89,8 +100,8 @@ function UserDetail({ u, admin }: { u: AdminUser; admin: ReturnType<typeof useAd
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <p className="font-bold">{u.username || 'No username'}</p>
-              <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => { setEditName(u.username || ''); setEditing(true); }}>
+              <p className="font-bold">{displayName || 'No username'}</p>
+              <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => { setEditName(displayName || ''); setEditing(true); }}>
                 <Edit2 className="h-3 w-3" />
               </Button>
             </div>

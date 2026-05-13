@@ -28,8 +28,12 @@ export const GlobalChatPopup = () => {
   }, [activeFriend]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    if (messages.length > 0 || isOpen) {
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  }, [messages, isOpen]);
 
   if (!isOpen || !activeFriend) return null;
 
@@ -87,7 +91,7 @@ export const GlobalChatPopup = () => {
     <div className={`fixed z-40 flex flex-col bg-card border-2 border-border shadow-2xl overflow-hidden transition-all duration-300 ${
       isMaximized
         ? 'inset-0 rounded-none z-[60]'
-        : 'bottom-[76px] right-2 left-2 sm:left-auto sm:right-4 sm:w-[380px] h-[60vh] max-h-[500px] rounded-xl'
+        : 'bottom-[90px] right-2 left-2 sm:left-auto sm:right-4 sm:w-[380px] h-[60vh] max-h-[500px] rounded-xl'
     }`}>
       {/* Header */}
       <div className="flex items-center gap-2 px-3 py-2 border-b bg-muted/50 flex-shrink-0">

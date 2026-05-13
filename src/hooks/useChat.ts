@@ -105,6 +105,7 @@ export const useChat = () => {
     setThreads((prev) =>
       prev.map((t) => (t.friend.id === friendId ? { ...t, unreadCount: 0 } : t))
     );
+    window.dispatchEvent(new CustomEvent('messages-read', { detail: { friendId } }));
 
     try {
       const { data, error } = await supabase
@@ -171,6 +172,17 @@ export const useChat = () => {
   useEffect(() => {
     if (!user) return;
 
+    // Cross-component sync for instant badge clearing
+    const handleMessagesRead = (e: any) => {
+      const readFriendId = e.detail?.friendId;
+      if (readFriendId) {
+        setThreads((prev) =>
+          prev.map((t) => (t.friend.id === readFriendId ? { ...t, unreadCount: 0 } : t))
+        );
+      }
+    };
+    window.addEventListener('messages-read', handleMessagesRead);
+
     const channel = supabase
       .channel('dm_realtime')
       .on(
@@ -188,16 +200,18 @@ export const useChat = () => {
           const friendId = newMsg.sender_id === user.id ? newMsg.receiver_id : newMsg.sender_id;
           const currentActiveId = activeFriendIdRef.current;
 
-          if (friendId === currentActiveId && newMsg.sender_id !== user.id) {
+          if (friendId === currentActiveId) {
             setMessages((prev) => {
               if (prev.find((m) => m.id === newMsg.id)) return prev;
               return [...prev, newMsg];
             });
-            supabase
-              .from('direct_messages')
-              .update({ read: true })
-              .eq('id', newMsg.id)
-              .then();
+            if (newMsg.sender_id !== user.id) {
+              supabase
+                .from('direct_messages')
+                .update({ read: true })
+                .eq('id', newMsg.id)
+                .then();
+            }
           } else if (newMsg.sender_id !== user.id) {
             const senderThread = threadsRef.current.find(t => t.friend.id === newMsg.sender_id);
             const senderName = senderThread?.friend.username || 'Someone';
@@ -235,6 +249,7 @@ export const useChat = () => {
       .subscribe();
 
     return () => {
+      window.removeEventListener('messages-read', handleMessagesRead);
       supabase.removeChannel(channel);
     };
   }, [user]);

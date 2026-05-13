@@ -68,8 +68,6 @@ export const GlobalMusicPlayer = () => {
         playerVars: {
           autoplay: 0,
           controls: 0,
-          loop: 1,
-          playlist: currentSource.videoId,
           enablejsapi: 1,
         },
         events: {
@@ -86,9 +84,6 @@ export const GlobalMusicPlayer = () => {
             window.dispatchEvent(new CustomEvent('player-ready', { detail: currentSource.videoId }));
           },
           onStateChange: (e: any) => {
-            if (e.data === window.YT.PlayerState.ENDED) {
-              e.target.playVideo();
-            }
             // Sync play/pause state with visual player
             if (e.data === window.YT.PlayerState.PLAYING) {
               window.dispatchEvent(new CustomEvent('player-playing', { detail: currentSource.videoId }));

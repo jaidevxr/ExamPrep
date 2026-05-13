@@ -164,14 +164,22 @@ export const MusicPlayer = () => {
             ref={iframeRef}
             key={currentSource.id}
             onLoad={() => {
-              if (isPlaying && iframeRef.current?.contentWindow) {
-                iframeRef.current.contentWindow.postMessage(
-                  JSON.stringify({ event: "command", func: "playVideo" }),
-                  "*"
-                );
+              if (iframeRef.current?.contentWindow) {
+                if (currentTime > 0) {
+                  iframeRef.current.contentWindow.postMessage(
+                    JSON.stringify({ event: "command", func: "seekTo", args: [currentTime, true] }),
+                    "*"
+                  );
+                }
+                if (isPlaying) {
+                  iframeRef.current.contentWindow.postMessage(
+                    JSON.stringify({ event: "command", func: "playVideo" }),
+                    "*"
+                  );
+                }
               }
             }}
-            src={`https://www.youtube.com/embed/${currentSource.videoId}?enablejsapi=1&controls=0&loop=1&playlist=${currentSource.videoId}&mute=1&origin=${encodeURIComponent(window.location.origin)}`}
+            src={`https://www.youtube.com/embed/${currentSource.videoId}?enablejsapi=1&controls=0&mute=1&origin=${encodeURIComponent(window.location.origin)}`}
             className="w-full h-full border-0 pointer-events-none"
             allow="autoplay; encrypted-media"
             title="Music Video"

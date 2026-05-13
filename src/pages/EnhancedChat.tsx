@@ -7,8 +7,9 @@ import { ArcadeNavbar } from "@/components/ArcadeNavbar";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { subjects } from "@/data/subjects";
 
-type Message = { role: "user" | "assistant"; content: string };
+type Message = { role: "system" | "user" | "assistant"; content: string };
 type Conversation = { id: string; title: string; created_at: string };
 
 const EnhancedChat = () => {
@@ -138,6 +139,19 @@ const EnhancedChat = () => {
     const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
     
     try {
+      const syllabusContext = subjects.map(s => `${s.name} (${s.code}): ` + s.units.map(u => u.title).join(', ')).join('\n');
+      const systemPrompt = `You are an AI Study Buddy for ExamPrep Pro. You must ONLY answer questions related to studying, academics, exams, and the provided syllabus. Do not engage in casual chat or topics outside of education. 
+Here is the complete syllabus of the user's platform:
+${syllabusContext}
+
+If the user asks a non-study-related question, politely decline and steer them back to studying. Provide concise, accurate, and helpful educational answers.`;
+
+      const payloadMessages = [
+        { role: "system", content: systemPrompt },
+        ...messages.map(m => ({ role: m.role, content: m.content })),
+        { role: userMessage.role, content: userMessage.content }
+      ];
+
       const resp = await fetch(CHAT_URL, {
         method: "POST",
         headers: {
@@ -145,7 +159,7 @@ const EnhancedChat = () => {
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
         body: JSON.stringify({ 
-          messages: [...messages, userMessage]
+          messages: payloadMessages
         }),
       });
 

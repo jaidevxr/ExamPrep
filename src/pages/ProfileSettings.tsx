@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { AvatarCropDialog } from '@/components/AvatarCropDialog';
 import { Loader2, Upload, User, Mail, Calendar, Target, Flame, ArrowLeft, Copy, Check, Download, Smartphone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { subjects } from '@/data/subjects';
@@ -24,6 +25,8 @@ export default function ProfileSettings() {
   const [breakDuration, setBreakDuration] = useState(5);
   const [isUpdatingUsername, setIsUpdatingUsername] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [cropDialogOpen, setCropDialogOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // Sync state when profile loads
   useEffect(() => {
@@ -41,11 +44,18 @@ export default function ProfileSettings() {
     setIsUpdatingUsername(false);
   };
 
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      await uploadAvatar(file);
+      setSelectedFile(file);
+      setCropDialogOpen(true);
+      // Reset the input so the same file can be selected again
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
+  };
+
+  const handleCroppedAvatar = async (croppedFile: File) => {
+    await uploadAvatar(croppedFile);
   };
 
   const handlePreferencesUpdate = async (focus: number, breakTime: number) => {
@@ -352,6 +362,14 @@ export default function ProfileSettings() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Avatar Crop & Pixel Dialog */}
+      <AvatarCropDialog
+        open={cropDialogOpen}
+        onOpenChange={setCropDialogOpen}
+        imageFile={selectedFile}
+        onComplete={handleCroppedAvatar}
+      />
     </div>
   );
 }

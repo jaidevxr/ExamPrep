@@ -82,6 +82,11 @@ const Auth = () => {
       return;
     }
 
+    if (!isLogin && (!username.trim() || username.trim().length < 3)) {
+      toast.error('Username must be at least 3 characters');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -198,7 +203,7 @@ const Auth = () => {
             {!isLogin && (
               <div className="space-y-2">
                 <Label htmlFor="username" className="text-xs font-black uppercase tracking-wider">
-                  Username (Optional)
+                  Username
                 </Label>
                 <Input
                   id="username"

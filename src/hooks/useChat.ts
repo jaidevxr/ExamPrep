@@ -172,13 +172,7 @@ export const useChat = () => {
       return false;
     }
   }, [user]);
-
-  const activeFriendIdRef = useRef(activeFriendId);
   const threadsRef = useRef(threads);
-
-  useEffect(() => {
-    activeFriendIdRef.current = activeFriendId;
-  }, [activeFriendId]);
 
   useEffect(() => {
     threadsRef.current = threads;

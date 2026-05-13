@@ -24,11 +24,13 @@ export const ArcadeNavbar = () => {
   const navItems = [
     { path: "/", icon: Home, label: "Dashboard" },
     { path: "/friends", icon: Users, label: "Buddies" },
-    { path: "/resources", icon: FileText, label: "Resources" },
     { path: "/planner", icon: Calendar, label: "Planner" },
     { path: "/analytics", icon: BarChart3, label: "Analytics" },
     { path: "/chat", icon: Bot, label: "AI Chat" },
-    ...(user?.email === ADMIN_EMAIL ? [{ path: "/admin", icon: Shield, label: "Admin" }] : []),
+    ...(user?.email === ADMIN_EMAIL ? [
+      { path: "/resources", icon: FileText, label: "Resources" },
+      { path: "/admin", icon: Shield, label: "Admin" },
+    ] : []),
   ];
 
   const isActive = (path: string) => {

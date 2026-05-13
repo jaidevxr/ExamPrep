@@ -1,8 +1,9 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { subjects } from "@/data/subjects";
 import { useCloudProgress } from "@/hooks/useCloudProgress";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useResources, Resource } from "@/hooks/useResources";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -13,7 +14,11 @@ import {
   Calendar,
   CheckCircle2,
   Circle,
-  Loader2
+  Loader2,
+  ScrollText,
+  BookOpen,
+  Download,
+  Eye
 } from "lucide-react";
 import { toast } from "sonner";
 import { ArcadeNavbar } from "@/components/ArcadeNavbar";
@@ -29,6 +34,13 @@ const SubjectDetail = () => {
   const { progress, updateProgress, loading } = useCloudProgress();
   const [importantTopics, setImportantTopics] = useLocalStorage<ImportantTopics>("important-topics", {});
   const [filter, setFilter] = useState<"all" | "completed" | "pending" | "important">("all");
+  const { resources, loadResources } = useResources();
+  const [showResources, setShowResources] = useState(false);
+
+  // Load resources for this subject
+  const subjectResources = useMemo(() => resources.filter(r => r.subject_id === id), [resources, id]);
+  const pyqs = subjectResources.filter(r => r.type === 'pyq');
+  const notes = subjectResources.filter(r => r.type === 'notes');
 
   const subject = subjects.find((s) => s.id === id);
 
@@ -211,6 +223,61 @@ const SubjectDetail = () => {
             </p>
           </Card>
         </div>
+
+        {/* Notes & PYQ Buttons */}
+        {(pyqs.length > 0 || notes.length > 0) && (
+          <div className="mb-6">
+            <div className="flex gap-2 mb-3">
+              {notes.length > 0 && (
+                <Button
+                  variant={showResources ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setShowResources(!showResources)}
+                  className="font-bold text-xs"
+                >
+                  <BookOpen className="h-3.5 w-3.5 mr-1" />
+                  Notes ({notes.length})
+                </Button>
+              )}
+              {pyqs.length > 0 && (
+                <Button
+                  variant={showResources ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setShowResources(!showResources)}
+                  className="font-bold text-xs"
+                >
+                  <ScrollText className="h-3.5 w-3.5 mr-1" />
+                  PYQs ({pyqs.length})
+                </Button>
+              )}
+              <span className="ml-auto text-xs text-muted-foreground font-bold flex items-center gap-1">
+                <Calendar className="h-3 w-3" />
+                {daysUntilExam > 0 ? `${daysUntilExam} days left` : 'Exam passed'}
+              </span>
+            </div>
+            {showResources && (
+              <div className="grid gap-2">
+                {subjectResources.map(r => (
+                  <Card key={r.id} className="p-3 flex items-center gap-3">
+                    <div className={`p-1.5 rounded ${r.type === 'pyq' ? 'bg-orange-500/20' : 'bg-blue-500/20'}`}>
+                      {r.type === 'pyq' ? <ScrollText className="h-4 w-4 text-orange-500" /> : <BookOpen className="h-4 w-4 text-blue-500" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold truncate">{r.title}</p>
+                      <p className="text-[10px] text-muted-foreground">{r.type.toUpperCase()} {r.year ? `• ${r.year}` : ''}</p>
+                    </div>
+                    <Button variant="outline" size="sm" className="h-7 text-[10px]" onClick={() => window.open(r.file_url, '_blank')}>
+                      <Eye className="h-3 w-3 mr-1" /> View
+                    </Button>
+                    <Button variant="outline" size="sm" className="h-7 text-[10px]" asChild>
+                      <a href={r.file_url} download><Download className="h-3 w-3 mr-1" /> Download</a>
+                    </Button>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Filters */}
         <div className="flex flex-wrap gap-2 mb-6">

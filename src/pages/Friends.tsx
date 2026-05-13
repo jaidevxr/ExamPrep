@@ -50,7 +50,7 @@ const Friends = () => {
     calculateSubjectProgress,
   } = useFriends();
   const { openChat } = useChatPopup();
-  const { threads } = useChat();
+  const { threads, onlineUsers } = useChat();
 
   const [searchId, setSearchId] = useState("");
   const [searchResult, setSearchResult] = useState<FriendProfile | null>(null);
@@ -156,7 +156,8 @@ const Friends = () => {
     }
   };
 
-  const getOnlineStatus = (lastSeen: string | null) => {
+  const getOnlineStatus = (lastSeen: string | null, userId: string) => {
+    if (onlineUsers[userId]) return { status: "online", label: "Online", color: "bg-green-500" };
     if (!lastSeen) return { status: "offline", label: "Offline", color: "bg-muted-foreground/50" };
 
     const now = new Date();
@@ -166,7 +167,7 @@ const Friends = () => {
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffMins < 5) return { status: "online", label: "Online", color: "bg-green-500" };
+    if (diffMins < 5) return { status: "away", label: "Just now", color: "bg-yellow-500" };
     if (diffMins < 60) return { status: "away", label: `${diffMins}m ago`, color: "bg-yellow-500" };
     if (diffHours < 24) return { status: "away", label: `${diffHours}h ago`, color: "bg-yellow-500" };
     return { status: "offline", label: `${diffDays}d ago`, color: "bg-muted-foreground/50" };
@@ -446,7 +447,7 @@ const Friends = () => {
             ) : (
               <div className="space-y-3">
                 {friends.map((friendship) => {
-                  const online = getOnlineStatus(friendship.friend.last_seen);
+                  const online = getOnlineStatus(friendship.friend.last_seen, friendship.friend.id);
                   const friendProg = friendProgressCache[friendship.friend.id];
                   const friendProgLoading = !friendProg && friendProgressLoading[friendship.friend.id];
                   const friendThread = threads.find(t => t.friend.id === friendship.friend.id);

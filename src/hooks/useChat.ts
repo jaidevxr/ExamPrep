@@ -304,15 +304,15 @@ export const useChat = () => {
 
     return () => {
       supabase.removeChannel(channel);
-      if (presenceChannel.current) {
-        supabase.removeChannel(presenceChannel.current);
+      if (presenceChannelRef.current) {
+        supabase.removeChannel(presenceChannelRef.current);
       }
     };
   }, [user]);
 
   const setTyping = useCallback(async (isTyping: boolean) => {
-    if (presenceChannel.current && user) {
-      await presenceChannel.current.track({
+    if (presenceChannelRef.current && user) {
+      await presenceChannelRef.current.track({
         user_id: user.id,
         typing: isTyping
       });

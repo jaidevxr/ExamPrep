@@ -78,18 +78,30 @@ export const GlobalChatPopup = () => {
     return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
   };
 
-  const getOnlineStatus = (lastSeen: string | null) => {
+  const {
+    messages,
+    loadingMessages,
+    sendMessage,
+    onlineUsers,
+    typingUsers,
+    setTyping,
+  } = useChat();
+
+  const getOnlineStatus = (lastSeen: string | null, userId: string) => {
+    if (onlineUsers[userId]) return { label: 'Online', isOnline: true };
     if (!lastSeen) return { label: 'Offline', isOnline: false };
     const diffMs = Date.now() - new Date(lastSeen).getTime();
     const diffMins = Math.floor(diffMs / 60000);
-    if (diffMins < 5) return { label: 'Online', isOnline: true };
+    if (diffMins < 5) return { label: 'Just now', isOnline: false };
     if (diffMins < 60) return { label: `${diffMins}m ago`, isOnline: false };
     const diffHours = Math.floor(diffMs / 3600000);
     if (diffHours < 24) return { label: `${diffHours}h ago`, isOnline: false };
     return { label: `${Math.floor(diffMs / 86400000)}d ago`, isOnline: false };
   };
 
-  const status = getOnlineStatus(activeFriend.last_seen);
+  const status = getOnlineStatus(activeFriend.last_seen, activeFriend.id);
+  const isTyping = typingUsers[activeFriend.id];
+  const typingTimeoutRef = useRef<NodeJS.Timeout>();
 
   const groupedMessages = messages.reduce<{ date: string; msgs: typeof messages }[]>((groups, msg) => {
     const dateKey = formatDate(msg.created_at);
@@ -214,6 +226,18 @@ export const GlobalChatPopup = () => {
         )}
       </div>
 
+      {/* Typing Indicator */}
+      {isTyping && (
+        <div className="absolute bottom-[60px] left-3 flex items-center bg-muted/90 px-3 py-1.5 rounded-full z-10 border border-border shadow-sm">
+          <div className="flex gap-1 items-center">
+            <div className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '0ms' }} />
+            <div className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '150ms' }} />
+            <div className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '300ms' }} />
+          </div>
+          <span className="text-[9px] font-bold ml-2 text-muted-foreground uppercase">{activeFriend.username} is typing...</span>
+        </div>
+      )}
+
       {/* Reply preview bar */}
       {replyTo && (
         <div className="border-t bg-muted/40 px-3 py-1.5 flex items-center gap-2 flex-shrink-0">
@@ -233,12 +257,17 @@ export const GlobalChatPopup = () => {
       )}
 
       {/* Input */}
-      <div className="border-t bg-muted/30 px-2 py-2 flex-shrink-0">
+      <div className="border-t bg-muted/30 px-2 py-2 flex-shrink-0 relative">
         <div className="flex items-center gap-1.5">
           <Input
             ref={inputRef}
             value={messageText}
-            onChange={(e) => setMessageText(e.target.value)}
+            onChange={(e) => {
+              setMessageText(e.target.value);
+              setTyping(true);
+              if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+              typingTimeoutRef.current = setTimeout(() => setTyping(false), 2000);
+            }}
             onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
             placeholder={replyTo ? 'Reply...' : 'Type a message...'}
             className="flex-1 h-8 border bg-background font-medium text-xs"

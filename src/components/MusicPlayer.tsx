@@ -97,7 +97,7 @@ export const MusicPlayer = () => {
     }
   };
 
-  const handleAddSong = () => {
+  const handleAddSong = async () => {
     if (!songUrl.trim()) {
       toast.error("Please enter a YouTube URL or video ID");
       return;
@@ -109,7 +109,27 @@ export const MusicPlayer = () => {
       return;
     }
 
-    const name = songName.trim() || `Custom Song ${customSongs.length + 1}`;
+    let name = songName.trim();
+    
+    if (!name) {
+      const toastId = toast.loading("Fetching song details...");
+      try {
+        // Use noembed proxy to avoid CORS issues with direct YouTube oembed
+        const response = await fetch(`https://noembed.com/embed?dataType=json&url=https://www.youtube.com/watch?v=${videoId}`);
+        const data = await response.json();
+        if (data && data.title) {
+          name = data.title;
+        }
+      } catch (error) {
+        console.error("Failed to fetch video title:", error);
+      }
+      toast.dismiss(toastId);
+    }
+
+    if (!name) {
+      name = `Custom Song ${customSongs.length + 1}`;
+    }
+
     const newSong: MusicSource = {
       id: `custom-${Date.now()}`,
       name,

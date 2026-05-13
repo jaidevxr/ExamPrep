@@ -9,6 +9,7 @@ import { ChatPopupProvider } from "@/contexts/ChatPopupContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { GlobalMusicPlayer } from "@/components/GlobalMusicPlayer";
 import { GlobalChatPopup } from "@/components/GlobalChatPopup";
+import { GlobalUsernameSetup } from "@/components/GlobalUsernameSetup";
 import { CloudProgressProvider } from "@/hooks/useCloudProgress";
 import Dashboard from "./pages/Dashboard";
 import Subjects from "./pages/Subjects";
@@ -55,6 +56,7 @@ const App = () => (
                   <Route path="*" element={<NotFound />} />
                 </Routes>
                 <GlobalChatPopup />
+                <GlobalUsernameSetup />
                 <GlobalMusicPlayer />
               </ChatPopupProvider>
             </CloudProgressProvider>

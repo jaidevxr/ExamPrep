@@ -97,7 +97,7 @@ const Auth = () => {
           toast.success('Welcome back! 🎮');
         }
       } else {
-        const { error } = await signUp(email, password, username || email.split('@')[0]);
+        const { error } = await signUp(email, password, username);
         if (error) {
           if (error.message.includes('already registered')) {
             toast.error('This email is already registered. Please login instead.');
@@ -208,6 +208,7 @@ const Auth = () => {
                   placeholder="Enter username"
                   className="minecraft-block font-bold h-11 text-base"
                   autoComplete="username"
+                  required
                 />
               </div>
             )}

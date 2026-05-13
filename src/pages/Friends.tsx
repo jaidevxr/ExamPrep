@@ -69,16 +69,36 @@ const Friends = () => {
   useEffect(() => {
     if (!friends || friends.length === 0) return;
 
-    friends.forEach(async (friendship) => {
-      const fid = friendship.friend.id;
-      if (loadedFriendIds.current.has(fid)) return;
-      loadedFriendIds.current.add(fid);
+    const fetchAllProgress = async () => {
+      const newFriends = friends.filter(f => !loadedFriendIds.current.has(f.friend.id));
+      if (newFriends.length === 0) return;
 
-      setFriendProgressLoading((prev) => ({ ...prev, [fid]: true }));
-      const progress = await getFriendProgress(fid);
-      setFriendProgressCache((prev) => ({ ...prev, [fid]: progress }));
-      setFriendProgressLoading((prev) => ({ ...prev, [fid]: false }));
-    });
+      const newFids = newFriends.map(f => f.friend.id);
+      newFids.forEach(id => loadedFriendIds.current.add(id));
+
+      setFriendProgressLoading(prev => {
+        const next = { ...prev };
+        newFids.forEach(id => { next[id] = true; });
+        return next;
+      });
+
+      const promises = newFids.map(id => getFriendProgress(id).then(prog => ({ id, prog })));
+      const results = await Promise.all(promises);
+
+      setFriendProgressCache(prev => {
+        const next = { ...prev };
+        results.forEach(res => { next[res.id] = res.prog; });
+        return next;
+      });
+
+      setFriendProgressLoading(prev => {
+        const next = { ...prev };
+        newFids.forEach(id => { next[id] = false; });
+        return next;
+      });
+    };
+
+    fetchAllProgress();
   }, [friends, getFriendProgress]);
 
   // Auto-search from share link (?add=STUDY_ID)

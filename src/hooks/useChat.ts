@@ -39,46 +39,43 @@ export const useChat = () => {
     }
 
     try {
-      // Get all DMs involving this user
-      const { data: allMessages, error } = await supabase
-        .from('direct_messages')
-        .select('*')
-        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      // Group by friend
-      const threadMap = new Map<string, { lastMsg: DirectMessage; unread: number }>();
-
-      (allMessages || []).forEach((msg: any) => {
-        const friendId = msg.sender_id === user.id ? msg.receiver_id : msg.sender_id;
-        if (!threadMap.has(friendId)) {
-          threadMap.set(friendId, { lastMsg: msg, unread: 0 });
-        }
-        if (msg.receiver_id === user.id && !msg.read) {
-          const entry = threadMap.get(friendId)!;
-          entry.unread++;
-        }
-      });
-
       // Build threads from friends list
-      const chatThreads: ChatThread[] = friends
-        .map((f) => {
-          const thread = threadMap.get(f.friend.id);
+      const chatThreads: ChatThread[] = await Promise.all(
+        friends.map(async (f) => {
+          const friendId = f.friend.id;
+
+          // Fetch the single most recent message for this thread
+          const { data: lastMsgData } = await supabase
+            .from('direct_messages')
+            .select('*')
+            .or(`and(sender_id.eq.${user.id},receiver_id.eq.${friendId}),and(sender_id.eq.${friendId},receiver_id.eq.${user.id})`)
+            .order('created_at', { ascending: false })
+            .limit(1);
+
+          // Fetch unread count
+          const { count: unreadCount } = await supabase
+            .from('direct_messages')
+            .select('*', { count: 'exact', head: true })
+            .eq('sender_id', friendId)
+            .eq('receiver_id', user.id)
+            .eq('read', false);
+
           return {
             friend: f.friend,
             friendshipId: f.id,
-            lastMessage: thread?.lastMsg || null,
-            unreadCount: thread?.unread || 0,
+            lastMessage: lastMsgData && lastMsgData.length > 0 ? (lastMsgData[0] as DirectMessage) : null,
+            unreadCount: unreadCount || 0,
           };
         })
-        .sort((a, b) => {
-          if (!a.lastMessage && !b.lastMessage) return 0;
-          if (!a.lastMessage) return 1;
-          if (!b.lastMessage) return -1;
-          return new Date(b.lastMessage.created_at).getTime() - new Date(a.lastMessage.created_at).getTime();
-        });
+      );
+
+      // Sort by latest message
+      chatThreads.sort((a, b) => {
+        if (!a.lastMessage && !b.lastMessage) return 0;
+        if (!a.lastMessage) return 1;
+        if (!b.lastMessage) return -1;
+        return new Date(b.lastMessage.created_at).getTime() - new Date(a.lastMessage.created_at).getTime();
+      });
 
       setThreads(chatThreads);
     } catch (error) {

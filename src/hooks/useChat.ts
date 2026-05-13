@@ -270,10 +270,10 @@ export const useChat = () => {
       .subscribe();
 
     // Presence subscription
-    presenceChannel.current = supabase.channel('online_users');
-    presenceChannel.current
+    presenceChannelRef.current = supabase.channel('online_users');
+    presenceChannelRef.current
       .on('presence', { event: 'sync' }, () => {
-        const state = presenceChannel.current.presenceState();
+        const state = presenceChannelRef.current.presenceState();
         const newOnline: Record<string, boolean> = {};
         const newTyping: Record<string, boolean> = {};
         
@@ -289,7 +289,7 @@ export const useChat = () => {
       })
       .subscribe(async (status: string) => {
         if (status === 'SUBSCRIBED' && user) {
-          await presenceChannel.current.track({
+          await presenceChannelRef.current.track({
             user_id: user.id,
             typing: false
           });

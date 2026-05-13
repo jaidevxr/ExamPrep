@@ -28,12 +28,12 @@ export const GlobalChatPopup = () => {
   }, [activeFriend]);
 
   useEffect(() => {
-    if (messages.length > 0 || isOpen) {
+    if (!loadingMessages && messages.length > 0 && isOpen) {
       setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
+        messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+      }, 50);
     }
-  }, [messages, isOpen]);
+  }, [messages, loadingMessages, isOpen]);
 
   if (!isOpen || !activeFriend) return null;
 

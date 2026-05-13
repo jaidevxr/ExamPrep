@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Subject } from "@/data/subjects";
+import { BookOpen, ScrollText } from "lucide-react";
+import { useResources } from "@/hooks/useResources";
 
 interface ExamCountdownProps {
   subject: Subject;
@@ -9,6 +11,10 @@ interface ExamCountdownProps {
 
 export const ExamCountdown = ({ subject, progress }: ExamCountdownProps) => {
   const [timeLeft, setTimeLeft] = useState<string>("");
+  const { resources } = useResources();
+
+  const notesCount = useMemo(() => resources.filter(r => r.subject_id === subject.id && r.type === 'notes').length, [resources, subject.id]);
+  const pyqsCount = useMemo(() => resources.filter(r => r.subject_id === subject.id && r.type === 'pyq').length, [resources, subject.id]);
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -80,7 +86,19 @@ export const ExamCountdown = ({ subject, progress }: ExamCountdownProps) => {
           <div className="space-y-2">
             <div>
               <h3 className="font-black text-base group-hover:text-primary transition-colors tracking-wide leading-tight">{subject.name}</h3>
-              <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold">{subject.code}</p>
+              <div className="flex items-center gap-2 mt-1">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold">{subject.code}</p>
+                {notesCount > 0 && (
+                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 text-[9px] font-bold">
+                    <BookOpen className="h-2.5 w-2.5" />{notesCount}
+                  </span>
+                )}
+                {pyqsCount > 0 && (
+                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400 text-[9px] font-bold">
+                    <ScrollText className="h-2.5 w-2.5" />{pyqsCount}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
           <div className={`text-right ${getUrgencyColor()}`}>

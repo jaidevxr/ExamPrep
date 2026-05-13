@@ -137,11 +137,11 @@ export const useAdmin = () => {
     try {
       const { data } = await supabase
         .from('friendships')
-        .select('*, user1:profiles!friendships_user_id_fkey(*), user2:profiles!friendships_friend_id_fkey(*)')
-        .or(`user_id.eq.${userId},friend_id.eq.${userId}`);
+        .select('*, user1:profiles!friendships_requester_id_fkey(*), user2:profiles!friendships_addressee_id_fkey(*)')
+        .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`);
       if (!data) return [];
       return data.map((f: any) => {
-        const friend = f.user_id === userId ? f.user2 : f.user1;
+        const friend = f.requester_id === userId ? f.user2 : f.user1;
         return { id: friend?.id || '', username: friend?.username || null, status: f.status };
       });
     } catch {

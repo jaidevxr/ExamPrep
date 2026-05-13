@@ -30,7 +30,16 @@ export const useChat = () => {
   const [loadingThreads, setLoadingThreads] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [activeFriendId, setActiveFriendId] = useState<string | null>(null);
+  const [onlineUsers, setOnlineUsers] = useState<Record<string, boolean>>({});
+  const [typingUsers, setTypingUsers] = useState<Record<string, boolean>>({});
   const channelRef = useRef<any>(null);
+  const presenceChannelRef = useRef<any>(null);
+  const activeFriendIdRef = useRef<string | null>(null);
+
+  // Sync active friend ID to ref for realtime callback
+  useEffect(() => {
+    activeFriendIdRef.current = activeFriendId;
+  }, [activeFriendId]);
 
   // Load all chat threads (conversations with friends)
   const loadThreads = useCallback(async () => {
@@ -96,6 +105,11 @@ export const useChat = () => {
     setLoadingMessages(true);
     setActiveFriendId(friendId);
 
+    // Optimistically update thread unread count locally so badge clears instantly
+    setThreads((prev) =>
+      prev.map((t) => (t.friend.id === friendId ? { ...t, unreadCount: 0 } : t))
+    );
+
     try {
       const { data, error } = await supabase
         .from('direct_messages')
@@ -108,7 +122,7 @@ export const useChat = () => {
       if (error) throw error;
       setMessages((data as DirectMessage[]) || []);
 
-      // Mark unread messages as read
+      // Mark unread messages as read in backend
       await supabase
         .from('direct_messages')
         .update({ read: true })
@@ -116,10 +130,6 @@ export const useChat = () => {
         .eq('receiver_id', user.id)
         .eq('read', false);
 
-      // Update thread unread count locally
-      setThreads((prev) =>
-        prev.map((t) => (t.friend.id === friendId ? { ...t, unreadCount: 0 } : t))
-      );
     } catch (error) {
       console.error('Error loading messages:', error);
     } finally {
@@ -265,9 +275,48 @@ export const useChat = () => {
       )
       .subscribe();
 
+    // Presence subscription
+    presenceChannel.current = supabase.channel('online_users');
+    presenceChannel.current
+      .on('presence', { event: 'sync' }, () => {
+        const state = presenceChannel.current.presenceState();
+        const newOnline: Record<string, boolean> = {};
+        const newTyping: Record<string, boolean> = {};
+        
+        Object.values(state).forEach((presences: any) => {
+          presences.forEach((p: any) => {
+            newOnline[p.user_id] = true;
+            if (p.typing) newTyping[p.user_id] = true;
+          });
+        });
+        
+        setOnlineUsers(newOnline);
+        setTypingUsers(newTyping);
+      })
+      .subscribe(async (status: string) => {
+        if (status === 'SUBSCRIBED' && user) {
+          await presenceChannel.current.track({
+            user_id: user.id,
+            typing: false
+          });
+        }
+      });
+
     return () => {
       supabase.removeChannel(channel);
+      if (presenceChannel.current) {
+        supabase.removeChannel(presenceChannel.current);
+      }
     };
+  }, [user]);
+
+  const setTyping = useCallback(async (isTyping: boolean) => {
+    if (presenceChannel.current && user) {
+      await presenceChannel.current.track({
+        user_id: user.id,
+        typing: isTyping
+      });
+    }
   }, [user]);
 
   // Total unread count (for badge)
@@ -279,9 +328,12 @@ export const useChat = () => {
     loadingThreads,
     loadingMessages,
     totalUnread,
+    onlineUsers,
+    typingUsers,
     loadMessages,
     sendMessage,
     setActiveFriendId,
+    setTyping,
     reload: loadThreads,
   };
 };

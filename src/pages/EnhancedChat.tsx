@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { subjects } from "@/data/subjects";
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 type Message = { role: "system" | "user" | "assistant"; content: string };
 type Conversation = { id: string; title: string; created_at: string };
@@ -144,7 +144,7 @@ const EnhancedChat = () => {
          return;
       }
       
-      const ai = new GoogleGenAI({ apiKey });
+      const ai = new GoogleGenerativeAI(apiKey);
 
       const syllabusContext = subjects.map(s => `${s.name} (${s.code}): ` + s.units.map(u => u.title).join(', ')).join('\n');
       const systemPrompt = `You are an AI Study Buddy for ExamPrep Pro. You must ONLY answer questions related to studying, academics, exams, and the provided syllabus. Do not engage in casual chat or topics outside of education. 
@@ -153,28 +153,24 @@ ${syllabusContext}
 
 If the user asks a non-study-related question, politely decline and steer them back to studying. Provide concise, accurate, and helpful educational answers.`;
 
-      const geminiMessages = messages.filter(m => m.role !== 'system').map(m => ({
+      const model = ai.getGenerativeModel({
+        model: "gemini-1.5-flash",
+        systemInstruction: systemPrompt
+      });
+
+      const history = messages.filter(m => m.role !== 'system').map(m => ({
         role: m.role === 'assistant' ? 'model' : 'user',
         parts: [{ text: m.content }]
       }));
-      
-      geminiMessages.push({
-        role: 'user',
-        parts: [{ text: userMessage.content }]
-      });
 
-      const responseStream = await ai.models.generateContentStream({
-        model: 'gemini-1.5-flash',
-        contents: geminiMessages,
-        config: {
-          systemInstruction: systemPrompt,
-        }
-      });
+      const chat = model.startChat({ history });
+      const result = await chat.sendMessageStream(userMessage.content);
 
       let assistantContent = "";
-      for await (const chunk of responseStream) {
-        if (chunk.text) {
-          assistantContent += chunk.text;
+      for await (const chunk of result.stream) {
+        const chunkText = chunk.text();
+        if (chunkText) {
+          assistantContent += chunkText;
           setMessages((prev) => {
             const last = prev[prev.length - 1];
             if (last?.role === "assistant") {
@@ -355,7 +351,7 @@ If the user asks a non-study-related question, politely decline and steer them b
                         Start a new conversation with your AI study buddy!
                       </p>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-md mx-auto pt-4">
-                        {['Explain quantum physics', 'Help me plan my studies', 'Quiz me on history', 'Study tips for exams'].map((prompt, i) => (
+                        {['Explain IoT architecture', 'What is the DOM in Web Tech?', 'Quiz me on IoT sensors', 'Study tips for Web exams'].map((prompt, i) => (
                           <Button
                             key={i}
                             variant="outline"

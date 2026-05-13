@@ -162,14 +162,20 @@ export const useChat = () => {
     }
   }, [user]);
 
+  const activeFriendIdRef = useRef(activeFriendId);
+  const threadsRef = useRef(threads);
+
+  useEffect(() => {
+    activeFriendIdRef.current = activeFriendId;
+  }, [activeFriendId]);
+
+  useEffect(() => {
+    threadsRef.current = threads;
+  }, [threads]);
+
   // Realtime subscription for new messages
   useEffect(() => {
     if (!user) return;
-
-    // Clean up previous channel
-    if (channelRef.current) {
-      supabase.removeChannel(channelRef.current);
-    }
 
     const channel = supabase
       .channel('dm_realtime')
@@ -187,9 +193,10 @@ export const useChat = () => {
           if (newMsg.sender_id !== user.id && newMsg.receiver_id !== user.id) return;
 
           const friendId = newMsg.sender_id === user.id ? newMsg.receiver_id : newMsg.sender_id;
+          const currentActiveId = activeFriendIdRef.current;
 
           // If we're in the active chat, add the message
-          if (friendId === activeFriendId && newMsg.sender_id !== user.id) {
+          if (friendId === currentActiveId && newMsg.sender_id !== user.id) {
             setMessages((prev) => {
               if (prev.find((m) => m.id === newMsg.id)) return prev;
               return [...prev, newMsg];
@@ -202,7 +209,7 @@ export const useChat = () => {
               .then();
           } else if (newMsg.sender_id !== user.id) {
             // Not in active chat — send browser push notification
-            const senderThread = threads.find(t => t.friend.id === newMsg.sender_id);
+            const senderThread = threadsRef.current.find(t => t.friend.id === newMsg.sender_id);
             const senderName = senderThread?.friend.username || 'Someone';
             sendNotification(
               `${senderName} sent a message`,
@@ -221,7 +228,7 @@ export const useChat = () => {
                         ...t,
                         lastMessage: newMsg,
                         unreadCount:
-                          friendId === activeFriendId ? 0 : t.unreadCount + (newMsg.sender_id !== user.id ? 1 : 0),
+                          friendId === activeFriendIdRef.current ? 0 : t.unreadCount + (newMsg.sender_id !== user.id ? 1 : 0),
                       }
                     : t
                 )
@@ -238,12 +245,10 @@ export const useChat = () => {
       )
       .subscribe();
 
-    channelRef.current = channel;
-
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, activeFriendId]);
+  }, [user]);
 
   // Total unread count (for badge)
   const totalUnread = threads.reduce((acc, t) => acc + t.unreadCount, 0);

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,6 +53,7 @@ export const MusicPlayer = () => {
 
   const [songName, setSongName] = useState("");
   const [songUrl, setSongUrl] = useState("");
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const allSources = [...defaultMusicSources, ...customSongs];
   const currentSource = allSources.find((s) => s.id === selectedSource) || defaultMusicSources[0];
@@ -62,6 +63,17 @@ export const MusicPlayer = () => {
       toast.success(`Now playing: ${currentSource.name}`);
     }
   }, [isPlaying, currentSource.name]);
+
+  // Sync visual video iframe with audio play state
+  useEffect(() => {
+    if (iframeRef.current && iframeRef.current.contentWindow) {
+      const command = isPlaying ? "playVideo" : "pauseVideo";
+      iframeRef.current.contentWindow.postMessage(
+        JSON.stringify({ event: "command", func: command }),
+        "*"
+      );
+    }
+  }, [isPlaying]);
 
   const formatTime = (seconds: number) => {
     if (!seconds || isNaN(seconds)) return "0:00";
@@ -121,8 +133,17 @@ export const MusicPlayer = () => {
           onClick={() => setIsPlaying(!isPlaying)}
         >
           <iframe
+            ref={iframeRef}
             key={currentSource.id}
-            src={`https://www.youtube.com/embed/${currentSource.videoId}?enablejsapi=1&controls=0&loop=1&playlist=${currentSource.videoId}&mute=1`}
+            onLoad={() => {
+              if (isPlaying && iframeRef.current?.contentWindow) {
+                iframeRef.current.contentWindow.postMessage(
+                  JSON.stringify({ event: "command", func: "playVideo" }),
+                  "*"
+                );
+              }
+            }}
+            src={`https://www.youtube.com/embed/${currentSource.videoId}?enablejsapi=1&controls=0&loop=1&playlist=${currentSource.videoId}&mute=1&origin=${encodeURIComponent(window.location.origin)}`}
             className="w-full h-full border-0 pointer-events-none"
             allow="autoplay; encrypted-media"
             title="Music Video"

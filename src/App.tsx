@@ -33,8 +33,8 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <MusicPlayerProvider>
-          <AuthProvider>
+        <AuthProvider>
+          <MusicPlayerProvider>
             <CloudProgressProvider>
               <ChatPopupProvider>
                 <Routes>
@@ -58,8 +58,8 @@ const App = () => (
                 <GlobalMusicPlayer />
               </ChatPopupProvider>
             </CloudProgressProvider>
-          </AuthProvider>
-        </MusicPlayerProvider>
+          </MusicPlayerProvider>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useProfile } from "@/hooks/useProfile";
 
 interface MusicSource {
   id: string;
@@ -37,14 +38,35 @@ export const useMusicPlayer = () => {
 };
 
 export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
+  const { profile, updateCustomMusic } = useProfile();
   const [isPlaying, setIsPlaying] = useState(false);
-  const [customSongs, setCustomSongs] = useLocalStorage<MusicSource[]>("custom-songs", []);
+  const [customSongs, setLocalCustomSongs] = useLocalStorage<MusicSource[]>("custom-songs", []);
   const [selectedSource, setSelectedSource] = useLocalStorage("selected-source", "lofi-girl");
   const [volume, setVolume] = useLocalStorage("music-volume", [70]);
   const [muted, setMuted] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [seekTime, setSeekTime] = useState<number | null>(null);
+
+  // Sync from profile on load or cross-device update
+  useEffect(() => {
+    if (profile?.custom_music && Array.isArray(profile.custom_music)) {
+      const profileSongsStr = JSON.stringify(profile.custom_music);
+      const localSongsStr = JSON.stringify(customSongs);
+      if (profileSongsStr !== localSongsStr) {
+        setLocalCustomSongs(profile.custom_music);
+      }
+    }
+  }, [profile?.custom_music]);
+
+  // Wrapper to update both local storage and Supabase
+  const setCustomSongs = (songs: MusicSource[] | ((prev: MusicSource[]) => MusicSource[])) => {
+    const newSongs = typeof songs === 'function' ? songs(customSongs) : songs;
+    setLocalCustomSongs(newSongs);
+    if (profile) {
+      updateCustomMusic(newSongs);
+    }
+  };
 
   const seekTo = (time: number) => {
     setSeekTime(time);

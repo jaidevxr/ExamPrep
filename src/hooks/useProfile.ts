@@ -12,6 +12,7 @@ interface Profile {
   default_focus_duration: number | null;
   default_break_duration: number | null;
   created_at: string | null;
+  custom_music?: any[] | null;
 }
 
 export const useProfile = () => {
@@ -209,6 +210,27 @@ export const useProfile = () => {
     }
   };
 
+  const updateCustomMusic = async (songs: any[]) => {
+    if (!user) return false;
+
+    const optimisticProfile = profile ? { ...profile, custom_music: songs } : null;
+    setProfile(optimisticProfile);
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ custom_music: songs })
+        .eq('id', user.id);
+
+      if (error) throw error;
+      return true;
+    } catch (error: any) {
+      console.error('Error saving custom music:', error);
+      setProfile(profile);
+      return false;
+    }
+  };
+
   return {
     profile,
     loading,
@@ -216,5 +238,6 @@ export const useProfile = () => {
     updateUsername,
     uploadAvatar,
     updatePreferences,
+    updateCustomMusic,
   };
 };

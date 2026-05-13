@@ -120,11 +120,11 @@ const EnhancedChat = () => {
     toast.success('Conversation deleted');
   };
 
-  const saveMessage = async (role: 'user' | 'assistant', content: string) => {
-    if (!currentConversationId) return;
+  const saveMessage = async (role: 'user' | 'assistant', content: string, convId: string | null = currentConversationId) => {
+    if (!convId) return;
 
     await supabase.from('messages').insert({
-      conversation_id: currentConversationId,
+      conversation_id: convId,
       role,
       content
     });
@@ -133,10 +133,10 @@ const EnhancedChat = () => {
     await supabase
       .from('conversations')
       .update({ updated_at: new Date().toISOString() })
-      .eq('id', currentConversationId);
+      .eq('id', convId);
   };
 
-  const streamChat = async (userMessage: Message) => {
+  const streamChat = async (userMessage: Message, convId: string | null = currentConversationId) => {
     try {
       const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
       if (!apiKey) {
@@ -185,14 +185,14 @@ If the user asks a non-study-related question, politely decline and steer them b
 
       // Save assistant message to database
       if (assistantContent) {
-        await saveMessage('assistant', assistantContent);
+        await saveMessage('assistant', assistantContent, convId);
         
         // Update conversation title if it's the first message
-        if (messages.length === 1) {
+        if (messages.length === 1 && convId) {
           await supabase
             .from('conversations')
             .update({ title: userMessage.content.slice(0, 50) })
-            .eq('id', currentConversationId);
+            .eq('id', convId);
           loadConversations();
         }
       }
@@ -205,8 +205,10 @@ If the user asks a non-study-related question, politely decline and steer them b
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
+    let activeConvId = currentConversationId;
+
     // Create conversation if needed
-    if (!currentConversationId) {
+    if (!activeConvId) {
       const { data } = await supabase
         .from('conversations')
         .insert({
@@ -217,6 +219,7 @@ If the user asks a non-study-related question, politely decline and steer them b
         .single();
 
       if (data) {
+        activeConvId = data.id;
         setCurrentConversationId(data.id);
         loadConversations();
       }
@@ -228,11 +231,11 @@ If the user asks a non-study-related question, politely decline and steer them b
     setIsLoading(true);
 
     // Save user message
-    if (currentConversationId) {
-      await saveMessage('user', input);
+    if (activeConvId) {
+      await saveMessage('user', input, activeConvId);
     }
 
-    await streamChat(userMessage);
+    await streamChat(userMessage, activeConvId);
     setIsLoading(false);
   };
 

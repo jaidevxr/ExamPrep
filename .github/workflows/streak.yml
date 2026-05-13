@@ -1,0 +1,26 @@
+name: GitHub Streak Maintainer
+
+on:
+  schedule:
+    # Runs at 12:00 UTC every day
+    - cron: '0 12 * * *'
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  commit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Make daily commit
+        run: |
+          echo "Last streak commit: $(date)" > .github_streak.txt
+          git config --local user.email "jaidevxr@gmail.com"
+          git config --local user.name "jaidevxr"
+          git add .github_streak.txt
+          git commit -m "chore: daily streak commit" || echo "No changes to commit"
+          git push

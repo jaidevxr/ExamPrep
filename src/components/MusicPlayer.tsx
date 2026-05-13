@@ -116,21 +116,26 @@ export const MusicPlayer = () => {
     <Card className="p-4 bg-card/95 minecraft-block">
       <div className="space-y-4">
         {/* Video Preview - Synced with Audio */}
-        <div className="relative w-full h-52 rounded overflow-hidden bg-muted">
+        <div 
+          className="relative w-full h-52 rounded overflow-hidden bg-muted cursor-pointer group"
+          onClick={() => setIsPlaying(!isPlaying)}
+        >
           <iframe
             key={currentSource.id}
             src={`https://www.youtube.com/embed/${currentSource.videoId}?enablejsapi=1&controls=0&loop=1&playlist=${currentSource.videoId}&mute=1`}
-            className="w-full h-full border-0"
+            className="w-full h-full border-0 pointer-events-none"
             allow="autoplay; encrypted-media"
             title="Music Video"
           />
-          {!isPlaying && (
-            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-              <div className="bg-primary/90 rounded-full p-4">
-                <Play className="h-8 w-8 text-primary-foreground fill-current" />
-              </div>
+          <div className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${isPlaying ? 'bg-black/0 group-hover:bg-black/40 opacity-0 group-hover:opacity-100' : 'bg-black/40 opacity-100'}`}>
+            <div className="bg-primary/90 rounded-full p-4 transform transition-transform group-hover:scale-110 shadow-lg">
+              {isPlaying ? (
+                <Pause className="h-8 w-8 text-primary-foreground fill-current" />
+              ) : (
+                <Play className="h-8 w-8 text-primary-foreground fill-current pl-1" />
+              )}
             </div>
-          )}
+          </div>
         </div>
 
         {/* Now Playing */}

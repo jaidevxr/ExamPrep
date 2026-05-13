@@ -299,7 +299,7 @@ const Auth = () => {
             )}
           </Button>
 
-          <div className="text-center mt-4 sm:mt-6">
+          <div className="text-center mt-4 sm:mt-6 space-y-4">
             <button
               onClick={() => {
                 setIsLogin(!isLogin);
@@ -312,6 +312,11 @@ const Auth = () => {
                 ? "Don't have an account? Sign up"
                 : 'Already have an account? Login'}
             </button>
+            <div className="pt-2 border-t border-border/50">
+              <p className="text-[10px] text-muted-foreground/60 tracking-widest font-black uppercase">
+                Crafted by <span className="text-primary/70">Jaidev</span>
+              </p>
+            </div>
           </div>
         </div>
 

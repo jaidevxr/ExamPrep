@@ -110,6 +110,11 @@ export const ArcadeNavbar = () => {
                 <LogOut className="mr-2 h-3 w-3" />
                 LOGOUT
               </DropdownMenuItem>
+              <div className="border-t border-border mt-1 pt-1.5 pb-1 px-2">
+                <p className="text-[9px] text-muted-foreground/50 text-center tracking-wider">
+                  ✦ Crafted by <span className="font-bold text-primary/50">Jaidev</span> ✦
+                </p>
+              </div>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

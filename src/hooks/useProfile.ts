@@ -231,12 +231,36 @@ export const useProfile = () => {
     }
   };
 
+  const removeAvatar = async () => {
+    if (!user) return false;
+
+    const prevProfile = profile;
+    setProfile((prev) => prev ? { ...prev, avatar_url: null } : null);
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ avatar_url: null })
+        .eq('id', user.id);
+
+      if (error) throw error;
+      toast.success('Avatar removed');
+      return true;
+    } catch (error: any) {
+      console.error('Error removing avatar:', error);
+      toast.error('Failed to remove avatar');
+      setProfile(prevProfile);
+      return false;
+    }
+  };
+
   return {
     profile,
     loading,
     uploading,
     updateUsername,
     uploadAvatar,
+    removeAvatar,
     updatePreferences,
     updateCustomMusic,
   };

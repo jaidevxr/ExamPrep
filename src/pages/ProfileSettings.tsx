@@ -16,7 +16,7 @@ import { subjects } from '@/data/subjects';
 export default function ProfileSettings() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { profile, loading, uploading, updateUsername, uploadAvatar, updatePreferences } = useProfile();
+  const { profile, loading, uploading, updateUsername, uploadAvatar, removeAvatar, updatePreferences } = useProfile();
   const { progress } = useCloudProgress();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -159,15 +159,27 @@ export default function ProfileSettings() {
                   onChange={handleAvatarUpload}
                   className="hidden"
                 />
-                <Button
-                  variant="outline"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploading}
-                  className="w-full sm:w-auto h-11 min-h-[44px]"
-                >
-                  <Upload className="mr-2 h-4 w-4" />
-                  {uploading ? 'Uploading...' : 'Change Photo'}
-                </Button>
+                <div className="flex gap-2 flex-wrap">
+                  <Button
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                    className="h-11 min-h-[44px]"
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    {uploading ? 'Uploading...' : 'Change Photo'}
+                  </Button>
+                  {profile?.avatar_url && (
+                    <Button
+                      variant="outline"
+                      onClick={removeAvatar}
+                      disabled={uploading}
+                      className="h-11 min-h-[44px] text-destructive hover:text-destructive border-destructive/30 hover:bg-destructive/10"
+                    >
+                      Remove
+                    </Button>
+                  )}
+                </div>
                 <p className="text-xs sm:text-sm text-muted-foreground">
                   JPG, PNG or WebP. Max 2MB.
                 </p>

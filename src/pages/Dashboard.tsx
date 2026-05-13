@@ -17,8 +17,12 @@ import {
   TrendingUp,
   Calendar,
   Clock,
-  Loader2
+  Loader2,
+  Download,
+  ScrollText,
+  X
 } from "lucide-react";
+import { Resource } from "@/hooks/useResources";
 
 interface SubjectProgress {
   [subjectId: string]: {
@@ -30,6 +34,7 @@ const Dashboard = () => {
   const { progress, loading } = useCloudProgress();
   const { streak: studyStreak } = useStudyStreak();
   const [viewMode, setViewMode] = useState<"card" | "list">("card");
+  const [viewingResource, setViewingResource] = useState<Resource | null>(null);
 
   const calculateProgress = (subjectId: string) => {
     const subject = subjects.find((s) => s.id === subjectId);
@@ -90,6 +95,26 @@ const Dashboard = () => {
   return (
     <>
       <ArcadeNavbar />
+      {/* PDF Viewer Modal */}
+      {viewingResource && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setViewingResource(null)}>
+          <div className="relative w-[95vw] h-[90vh] max-w-5xl bg-background rounded-xl border shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/50">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className={`p-1 rounded ${viewingResource.type === 'pyq' ? 'bg-orange-500/20' : 'bg-blue-500/20'}`}>
+                  {viewingResource.type === 'pyq' ? <ScrollText className="h-3.5 w-3.5 text-orange-500" /> : <BookOpen className="h-3.5 w-3.5 text-blue-500" />}
+                </div>
+                <p className="text-sm font-bold truncate">{viewingResource.title}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <a href={viewingResource.file_url} download className="inline-flex items-center px-2 py-1 rounded border text-xs font-bold hover:bg-muted transition-colors"><Download className="h-3 w-3 mr-1" />Download</a>
+                <button onClick={() => setViewingResource(null)} className="p-1 rounded hover:bg-muted"><X className="h-4 w-4" /></button>
+              </div>
+            </div>
+            <iframe src={viewingResource.file_url} className="w-full h-[calc(100%-44px)]" title={viewingResource.title} />
+          </div>
+        </div>
+      )}
       <div className="min-h-screen w-full relative pb-24">
         {loading ? (
           <div className="min-h-screen flex items-center justify-center">
@@ -173,6 +198,7 @@ const Dashboard = () => {
                         <ExamCountdown 
                           subject={subject} 
                           progress={calculateProgress(subject.id)}
+                          onViewResource={setViewingResource}
                         />
                       ) : (
                         <div className="bg-card/95 minecraft-block p-3 hover:bg-card transition-colors flex items-center justify-between gap-4">

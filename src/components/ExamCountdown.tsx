@@ -2,14 +2,15 @@ import { useEffect, useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Subject } from "@/data/subjects";
 import { BookOpen, ScrollText } from "lucide-react";
-import { useResources } from "@/hooks/useResources";
+import { useResources, Resource } from "@/hooks/useResources";
 
 interface ExamCountdownProps {
   subject: Subject;
   progress: number;
+  onViewResource?: (resource: Resource) => void;
 }
 
-export const ExamCountdown = ({ subject, progress }: ExamCountdownProps) => {
+export const ExamCountdown = ({ subject, progress, onViewResource }: ExamCountdownProps) => {
   const [timeLeft, setTimeLeft] = useState<string>("");
   const { resources } = useResources();
 
@@ -90,16 +91,16 @@ export const ExamCountdown = ({ subject, progress }: ExamCountdownProps) => {
                 <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold">{subject.code}</p>
                 {notesCount > 0 && (
                   <span
-                    className="inline-flex items-center px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 text-[9px] font-bold cursor-pointer hover:bg-blue-500/30 transition-colors"
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); const note = resources.find(r => r.subject_id === subject.id && r.type === 'notes'); if (note) window.open(note.file_url, '_blank'); }}
+                    className="inline-flex items-center px-2 py-0.5 rounded border border-blue-500/40 bg-blue-500/20 text-blue-400 text-[9px] font-bold cursor-pointer hover:bg-blue-500/40 hover:border-blue-400 transition-all"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); const note = resources.find(r => r.subject_id === subject.id && r.type === 'notes'); if (note && onViewResource) onViewResource(note); }}
                   >
                     Notes
                   </span>
                 )}
                 {pyqsCount > 0 && (
                   <span
-                    className="inline-flex items-center px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400 text-[9px] font-bold cursor-pointer hover:bg-orange-500/30 transition-colors"
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); const pyq = resources.find(r => r.subject_id === subject.id && r.type === 'pyq'); if (pyq) window.open(pyq.file_url, '_blank'); }}
+                    className="inline-flex items-center px-2 py-0.5 rounded border border-orange-500/40 bg-orange-500/20 text-orange-400 text-[9px] font-bold cursor-pointer hover:bg-orange-500/40 hover:border-orange-400 transition-all"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); const pyq = resources.find(r => r.subject_id === subject.id && r.type === 'pyq'); if (pyq && onViewResource) onViewResource(pyq); }}
                   >
                     PYQs
                   </span>

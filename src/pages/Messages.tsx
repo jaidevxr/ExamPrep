@@ -130,12 +130,14 @@ const Messages = () => {
     return (
       <>
         <ArcadeNavbar />
-        <div className="min-h-screen w-full pb-24" />
+        <div className="min-h-screen w-full pb-24">
+          {/* Empty dashboard placeholder - user can still see navbar */}
+        </div>
         {/* Floating Chat Popup */}
-        <div className={`fixed z-50 flex flex-col bg-card border-2 border-border shadow-2xl overflow-hidden transition-all duration-300 ${
+        <div className={`fixed z-40 flex flex-col bg-card border-2 border-border shadow-2xl overflow-hidden transition-all duration-300 ${
           isMaximized
             ? "inset-0 rounded-none"
-            : "bottom-4 right-4 w-[380px] h-[520px] rounded-xl sm:bottom-6 sm:right-6"
+            : "bottom-[72px] right-2 left-2 sm:left-auto sm:right-4 sm:w-[380px] h-[65vh] max-h-[520px] rounded-xl"
         }`}>
           {/* Chat Header */}
           <div className="flex items-center gap-2 px-3 py-2 border-b bg-muted/50 flex-shrink-0">

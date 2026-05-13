@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Loader2, Upload, User, Mail, Calendar, Target, Flame, ArrowLeft, Copy, Check } from 'lucide-react';
+import { Loader2, Upload, User, Mail, Calendar, Target, Flame, ArrowLeft, Copy, Check, Download, Smartphone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { subjects } from '@/data/subjects';
 
@@ -68,6 +68,31 @@ export default function ProfileSettings() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
+  };
+
+  // PWA Install
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstalled, setIsInstalled] = useState(false);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    // Check if already installed
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      setIsInstalled(true);
+    }
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') setIsInstalled(true);
+    setDeferredPrompt(null);
   };
 
   if (loading) {
@@ -292,6 +317,38 @@ export default function ProfileSettings() {
                 <p className="text-xs sm:text-sm font-bold">{Object.keys(progress).length} subjects</p>
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Install App */}
+        <Card className="border-primary/20">
+          <CardHeader>
+            <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+              <Smartphone className="h-5 w-5" /> Install App
+            </CardTitle>
+            <CardDescription className="text-xs sm:text-sm">Install ExamPrep on your device for quick access</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isInstalled ? (
+              <div className="flex items-center gap-3 p-4 rounded-lg bg-green-500/10 border border-green-500/30">
+                <Check className="h-5 w-5 text-green-500" />
+                <p className="text-sm font-bold text-green-400">App is already installed!</p>
+              </div>
+            ) : deferredPrompt ? (
+              <Button onClick={handleInstall} className="w-full h-12 text-sm font-bold">
+                <Download className="h-4 w-4 mr-2" /> Install ExamPrep App
+              </Button>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-xs text-muted-foreground">
+                  To install, open this site in <strong>Chrome</strong> or <strong>Edge</strong> and look for the install icon in the address bar. On mobile, tap <strong>"Add to Home Screen"</strong> from the browser menu.
+                </p>
+                <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50 border">
+                  <Smartphone className="h-4 w-4 text-primary flex-shrink-0" />
+                  <p className="text-[11px] text-muted-foreground">Works offline • Fast launch • No app store needed</p>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

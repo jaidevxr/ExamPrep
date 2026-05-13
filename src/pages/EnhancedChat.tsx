@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { subjects } from "@/data/subjects";
+import { GoogleGenAI } from "@google/genai";
 
 type Message = { role: "system" | "user" | "assistant"; content: string };
 type Conversation = { id: string; title: string; created_at: string };
@@ -136,9 +137,15 @@ const EnhancedChat = () => {
   };
 
   const streamChat = async (userMessage: Message) => {
-    const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
-    
     try {
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      if (!apiKey) {
+         toast.error("Gemini API key is missing.");
+         return;
+      }
+      
+      const ai = new GoogleGenAI({ apiKey });
+
       const syllabusContext = subjects.map(s => `${s.name} (${s.code}): ` + s.units.map(u => u.title).join(', ')).join('\n');
       const systemPrompt = `You are an AI Study Buddy for ExamPrep Pro. You must ONLY answer questions related to studying, academics, exams, and the provided syllabus. Do not engage in casual chat or topics outside of education. 
 Here is the complete syllabus of the user's platform:
@@ -146,80 +153,37 @@ ${syllabusContext}
 
 If the user asks a non-study-related question, politely decline and steer them back to studying. Provide concise, accurate, and helpful educational answers.`;
 
-      const payloadMessages = [
-        { role: "system", content: systemPrompt },
-        ...messages.map(m => ({ role: m.role, content: m.content })),
-        { role: userMessage.role, content: userMessage.content }
-      ];
-
-      const resp = await fetch(CHAT_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({ 
-          messages: payloadMessages
-        }),
+      const geminiMessages = messages.filter(m => m.role !== 'system').map(m => ({
+        role: m.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: m.content }]
+      }));
+      
+      geminiMessages.push({
+        role: 'user',
+        parts: [{ text: userMessage.content }]
       });
 
-      if (!resp.ok || !resp.body) {
-        if (resp.status === 429) {
-          toast.error("Rate limit exceeded. Please try again later.");
-          return;
+      const responseStream = await ai.models.generateContentStream({
+        model: 'gemini-1.5-flash',
+        contents: geminiMessages,
+        config: {
+          systemInstruction: systemPrompt,
         }
-        if (resp.status === 402) {
-          toast.error("AI credits exhausted. Please contact support.");
-          return;
-        }
-        throw new Error("Failed to start stream");
-      }
+      });
 
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let textBuffer = "";
-      let streamDone = false;
       let assistantContent = "";
-
-      while (!streamDone) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        textBuffer += decoder.decode(value, { stream: true });
-
-        let newlineIndex: number;
-        while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
-          let line = textBuffer.slice(0, newlineIndex);
-          textBuffer = textBuffer.slice(newlineIndex + 1);
-
-          if (line.endsWith("\r")) line = line.slice(0, -1);
-          if (line.startsWith(":") || line.trim() === "") continue;
-          if (!line.startsWith("data: ")) continue;
-
-          const jsonStr = line.slice(6).trim();
-          if (jsonStr === "[DONE]") {
-            streamDone = true;
-            break;
-          }
-
-          try {
-            const parsed = JSON.parse(jsonStr);
-            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
-            if (content) {
-              assistantContent += content;
-              setMessages((prev) => {
-                const last = prev[prev.length - 1];
-                if (last?.role === "assistant") {
-                  return prev.map((m, i) =>
-                    i === prev.length - 1 ? { ...m, content: assistantContent } : m
-                  );
-                }
-                return [...prev, { role: "assistant", content: assistantContent }];
-              });
+      for await (const chunk of responseStream) {
+        if (chunk.text) {
+          assistantContent += chunk.text;
+          setMessages((prev) => {
+            const last = prev[prev.length - 1];
+            if (last?.role === "assistant") {
+              return prev.map((m, i) =>
+                i === prev.length - 1 ? { ...m, content: assistantContent } : m
+              );
             }
-          } catch {
-            textBuffer = line + "\n" + textBuffer;
-            break;
-          }
+            return [...prev, { role: "assistant", content: assistantContent }];
+          });
         }
       }
 

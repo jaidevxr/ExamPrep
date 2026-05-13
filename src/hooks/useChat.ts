@@ -239,6 +239,25 @@ export const useChat = () => {
                   if (!b.lastMessage) return -1;
                   return new Date(b.lastMessage.created_at).getTime() - new Date(a.lastMessage.created_at).getTime();
                 });
+            } else {
+              // Fetch user dynamically if not in threads
+              supabase.from('profiles').select('*').eq('id', friendId).single().then(({ data: friendData }) => {
+                if (friendData) {
+                  setThreads(currentThreads => {
+                    if (currentThreads.some(t => t.friend.id === friendId)) return currentThreads;
+                    return [{
+                      friend: friendData,
+                      lastMessage: newMsg,
+                      unreadCount: newMsg.sender_id !== user.id ? 1 : 0
+                    }, ...currentThreads].sort((a, b) => {
+                      if (!a.lastMessage && !b.lastMessage) return 0;
+                      if (!a.lastMessage) return 1;
+                      if (!b.lastMessage) return -1;
+                      return new Date(b.lastMessage.created_at).getTime() - new Date(a.lastMessage.created_at).getTime();
+                    });
+                  });
+                }
+              });
             }
             return prev;
           });

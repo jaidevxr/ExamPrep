@@ -229,6 +229,7 @@ const Analytics = () => {
                     <YAxis 
                       stroke="hsl(var(--muted-foreground))"
                       tick={{ fontSize: 10, fontWeight: "bold" }}
+                      domain={[0, 100]}
                     />
                     <Tooltip
                       contentStyle={{

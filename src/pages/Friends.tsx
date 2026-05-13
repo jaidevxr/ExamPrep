@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useFriends, FriendProfile, Friendship, FriendProgress } from "@/hooks/useFriends";
+import { useChat } from "@/hooks/useChat";
 import { useChatPopup } from "@/contexts/ChatPopupContext";
 import { subjects } from "@/data/subjects";
 import {
@@ -49,6 +50,7 @@ const Friends = () => {
     calculateSubjectProgress,
   } = useFriends();
   const { openChat } = useChatPopup();
+  const { threads } = useChat();
 
   const [searchId, setSearchId] = useState("");
   const [searchResult, setSearchResult] = useState<FriendProfile | null>(null);
@@ -427,6 +429,8 @@ const Friends = () => {
                   const online = getOnlineStatus(friendship.friend.last_seen);
                   const friendProg = friendProgressCache[friendship.friend.id];
                   const friendProgLoading = !friendProg && friendProgressLoading[friendship.friend.id];
+                  const friendThread = threads.find(t => t.friend.id === friendship.friend.id);
+                  const unreadCount = friendThread?.unreadCount || 0;
 
                   return (
                     <div
@@ -463,10 +467,15 @@ const Friends = () => {
                         <div className="flex items-center gap-1 flex-shrink-0">
                           <Button
                             size="sm"
-                            variant="outline"
+                            variant={unreadCount > 0 ? "default" : "outline"}
                             onClick={() => openChat(friendship.friend)}
-                            className="h-8 sm:h-9 font-black arcade-text text-[10px] sm:text-xs border-2 px-2 sm:px-3"
+                            className="relative h-8 sm:h-9 font-black arcade-text text-[10px] sm:text-xs border-2 px-2 sm:px-3"
                           >
+                            {unreadCount > 0 && (
+                              <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[9px] text-destructive-foreground font-black border-2 border-card animate-pulse">
+                                {unreadCount > 9 ? '9+' : unreadCount}
+                              </span>
+                            )}
                             <MessageSquare className="h-3 w-3 sm:mr-1" />
                             <span className="hidden sm:inline">CHAT</span>
                           </Button>

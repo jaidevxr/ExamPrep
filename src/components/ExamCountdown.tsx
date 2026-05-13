@@ -91,7 +91,7 @@ export const ExamCountdown = ({ subject, progress, onViewResource }: ExamCountdo
                 <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold">{subject.code}</p>
                 {notesCount > 0 && (
                   <span
-                    className="text-[10px] font-black text-primary cursor-pointer hover:underline uppercase tracking-wider"
+                    className="text-[10px] font-black text-primary cursor-pointer hover:bg-primary/10 uppercase tracking-wider px-1.5 py-0.5 border border-primary/40 rounded transition-colors"
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); const note = resources.find(r => r.subject_id === subject.id && r.type === 'notes'); if (note && onViewResource) onViewResource(note); }}
                   >
                     Notes
@@ -99,7 +99,7 @@ export const ExamCountdown = ({ subject, progress, onViewResource }: ExamCountdo
                 )}
                 {pyqsCount > 0 && (
                   <span
-                    className="text-[10px] font-black text-warning cursor-pointer hover:underline uppercase tracking-wider"
+                    className="text-[10px] font-black text-warning cursor-pointer hover:bg-warning/10 uppercase tracking-wider px-1.5 py-0.5 border border-warning/40 rounded transition-colors"
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); const pyq = resources.find(r => r.subject_id === subject.id && r.type === 'pyq'); if (pyq && onViewResource) onViewResource(pyq); }}
                   >
                     PYQs

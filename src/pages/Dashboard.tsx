@@ -240,13 +240,8 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Arcade Timer, Music & Exam Calendar */}
+            {/* Right Sidebar */}
             <div className="space-y-4">
-              <h2 className="text-base sm:text-xl font-black arcade-text text-secondary">⚡ FOCUS ZONE</h2>
-
-              <ArcadeTimer />
-              <MusicPlayer />
-
               {/* Study Buddies Card */}
               <Link to="/buddies">
                 <Card className="p-4 bg-card/95 minecraft-block card-hover group relative overflow-hidden">
@@ -256,13 +251,11 @@ const Dashboard = () => {
                       <h3 className="text-sm font-black arcade-text text-primary flex items-center gap-1.5">
                         <Users className="h-4 w-4" /> STUDY BUDDIES
                       </h3>
-                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-green-500/20 text-green-400 font-bold border border-green-500/30">NEW</span>
+                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-green-500/20 text-green-400 font-bold border border-green-500/30 arcade-text">NEW</span>
                     </div>
                     <p className="text-[11px] text-muted-foreground mb-3">Add friends, chat & track progress together!</p>
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-bold text-muted-foreground"><span className="text-lg font-black text-foreground">{friends.length}</span> buddies</span>
-                      </div>
+                      <span className="text-xs font-bold text-muted-foreground"><span className="text-lg font-black text-foreground">{friends.length}</span> buddies</span>
                       <span className="inline-flex items-center gap-1 text-[10px] font-bold text-primary group-hover:translate-x-1 transition-transform">
                         Explore <ArrowRight className="h-3 w-3" />
                       </span>
@@ -271,6 +264,10 @@ const Dashboard = () => {
                 </Card>
               </Link>
 
+              <h2 className="text-base sm:text-xl font-black arcade-text text-secondary">⚡ FOCUS ZONE</h2>
+
+              <ArcadeTimer />
+              <MusicPlayer />
               <ExamCalendar />
             </div>
           </div>

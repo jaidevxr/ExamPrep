@@ -27,6 +27,13 @@ export const GlobalChatPopup = () => {
     }
   }, [activeFriend]);
 
+  // Reset maximized state when chat is closed
+  useEffect(() => {
+    if (!isOpen) {
+      setIsMaximized(false);
+    }
+  }, [isOpen]);
+
   useEffect(() => {
     if (!loadingMessages && messages.length > 0 && isOpen) {
       setTimeout(() => {

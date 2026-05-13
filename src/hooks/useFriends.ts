@@ -348,7 +348,10 @@ export const useFriends = () => {
   const updateLastSeen = useCallback(async () => {
     if (!user) return;
     try {
-      await supabase.rpc('update_last_seen');
+      await supabase
+        .from('profiles')
+        .update({ last_seen: new Date().toISOString() })
+        .eq('id', user.id);
     } catch (error) {
       // Silently fail - not critical
     }

@@ -120,7 +120,7 @@ export default function ProfileSettings() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/')}
             className="h-10 w-10 sm:h-11 sm:w-11"
           >
             <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />

@@ -199,11 +199,14 @@ export const useAdmin = () => {
     }
   };
 
-  // Update any user's profile
+  // Update any user's profile (uses SECURITY DEFINER function to bypass RLS)
   const updateUserProfile = async (userId: string, updates: Partial<AdminUser>) => {
     if (!isAdmin) return false;
     try {
-      const { error } = await supabase.from('profiles').update(updates).eq('id', userId);
+      const { error } = await supabase.rpc('admin_update_profile', {
+        target_user_id: userId,
+        new_username: updates.username ?? null,
+      });
       if (error) throw error;
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, ...updates } : u));
       toast.success('User updated');

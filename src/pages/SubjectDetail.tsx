@@ -35,7 +35,7 @@ const SubjectDetail = () => {
   const [importantTopics, setImportantTopics] = useLocalStorage<ImportantTopics>("important-topics", {});
   const [filter, setFilter] = useState<"all" | "completed" | "pending" | "important">("all");
   const { resources, loadResources } = useResources();
-  const [showResources, setShowResources] = useState(false);
+  const [viewingResource, setViewingResource] = useState<Resource | null>(null);
 
   // Load resources for this subject
   const subjectResources = useMemo(() => resources.filter(r => r.subject_id === id), [resources, id]);
@@ -154,6 +154,29 @@ const SubjectDetail = () => {
   return (
     <>
       <ArcadeNavbar />
+      {/* PDF Viewer Modal */}
+      {viewingResource && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setViewingResource(null)}>
+          <div className="relative w-[95vw] h-[90vh] max-w-5xl bg-background rounded-xl border shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/50">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className={`p-1 rounded ${viewingResource.type === 'pyq' ? 'bg-orange-500/20' : 'bg-blue-500/20'}`}>
+                  {viewingResource.type === 'pyq' ? <ScrollText className="h-3.5 w-3.5 text-orange-500" /> : <BookOpen className="h-3.5 w-3.5 text-blue-500" />}
+                </div>
+                <p className="text-sm font-bold truncate">{viewingResource.title}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" className="h-7 text-[10px]" asChild>
+                  <a href={viewingResource.file_url} download><Download className="h-3 w-3 mr-1" /> Download</a>
+                </Button>
+                <Button variant="ghost" size="sm" className="h-7 text-[10px]" onClick={() => setViewingResource(null)}>✕</Button>
+              </div>
+            </div>
+            <iframe src={viewingResource.file_url} className="w-full h-[calc(100%-44px)]" title={viewingResource.title} />
+          </div>
+        </div>
+      )}
+
       <div className="min-h-screen bg-background pb-24">
         {/* Header */}
         <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b shadow-custom-sm">
@@ -224,58 +247,44 @@ const SubjectDetail = () => {
           </Card>
         </div>
 
-        {/* Notes & PYQ Buttons */}
-        {(pyqs.length > 0 || notes.length > 0) && (
+        {/* Notes & PYQ - Always visible */}
+        {subjectResources.length > 0 && (
           <div className="mb-6">
-            <div className="flex gap-2 mb-3">
+            <div className="flex items-center gap-2 mb-3">
               {notes.length > 0 && (
-                <Button
-                  variant={showResources ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setShowResources(!showResources)}
-                  className="font-bold text-xs"
-                >
-                  <BookOpen className="h-3.5 w-3.5 mr-1" />
-                  Notes ({notes.length})
-                </Button>
+                <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-blue-500/20 text-blue-400 text-[11px] font-bold">
+                  <BookOpen className="h-3 w-3" /> {notes.length} Notes
+                </span>
               )}
               {pyqs.length > 0 && (
-                <Button
-                  variant={showResources ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setShowResources(!showResources)}
-                  className="font-bold text-xs"
-                >
-                  <ScrollText className="h-3.5 w-3.5 mr-1" />
-                  PYQs ({pyqs.length})
-                </Button>
+                <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-orange-500/20 text-orange-400 text-[11px] font-bold">
+                  <ScrollText className="h-3 w-3" /> {pyqs.length} PYQs
+                </span>
               )}
               <span className="ml-auto text-xs text-muted-foreground font-bold flex items-center gap-1">
                 <Calendar className="h-3 w-3" />
                 {daysUntilExam > 0 ? `${daysUntilExam} days left` : 'Exam passed'}
               </span>
             </div>
-            {showResources && (
-              <div className="grid gap-2">
-                {subjectResources.map(r => (
-                  <Card key={r.id} className="p-3 flex items-center gap-3">
-                    <div className={`p-1.5 rounded ${r.type === 'pyq' ? 'bg-orange-500/20' : 'bg-blue-500/20'}`}>
-                      {r.type === 'pyq' ? <ScrollText className="h-4 w-4 text-orange-500" /> : <BookOpen className="h-4 w-4 text-blue-500" />}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold truncate">{r.title}</p>
-                      <p className="text-[10px] text-muted-foreground">{r.type.toUpperCase()} {r.year ? `• ${r.year}` : ''}</p>
-                    </div>
-                    <Button variant="outline" size="sm" className="h-7 text-[10px]" onClick={() => window.open(r.file_url, '_blank')}>
-                      <Eye className="h-3 w-3 mr-1" /> View
-                    </Button>
-                    <Button variant="outline" size="sm" className="h-7 text-[10px]" asChild>
-                      <a href={r.file_url} download><Download className="h-3 w-3 mr-1" /> Download</a>
-                    </Button>
-                  </Card>
-                ))}
-              </div>
-            )}
+            <div className="grid gap-2">
+              {subjectResources.map(r => (
+                <Card key={r.id} className="p-3 flex items-center gap-3">
+                  <div className={`p-1.5 rounded ${r.type === 'pyq' ? 'bg-orange-500/20' : 'bg-blue-500/20'}`}>
+                    {r.type === 'pyq' ? <ScrollText className="h-4 w-4 text-orange-500" /> : <BookOpen className="h-4 w-4 text-blue-500" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold truncate">{r.title}</p>
+                    <p className="text-[10px] text-muted-foreground">{r.type.toUpperCase()} {r.year ? `• ${r.year}` : ''}</p>
+                  </div>
+                  <Button variant="outline" size="sm" className="h-7 text-[10px]" onClick={() => setViewingResource(r)}>
+                    <Eye className="h-3 w-3 mr-1" /> View
+                  </Button>
+                  <Button variant="outline" size="sm" className="h-7 text-[10px]" asChild>
+                    <a href={r.file_url} download><Download className="h-3 w-3 mr-1" /> Download</a>
+                  </Button>
+                </Card>
+              ))}
+            </div>
           </div>
         )}
 

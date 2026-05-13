@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useFriends, FriendProfile, Friendship, FriendProgress } from "@/hooks/useFriends";
+import { useChatPopup } from "@/contexts/ChatPopupContext";
 import { subjects } from "@/data/subjects";
 import {
   Users,
@@ -47,6 +48,7 @@ const Friends = () => {
     getFriendProgress,
     calculateSubjectProgress,
   } = useFriends();
+  const { openChat } = useChatPopup();
 
   const [searchId, setSearchId] = useState("");
   const [searchResult, setSearchResult] = useState<FriendProfile | null>(null);
@@ -462,7 +464,7 @@ const Friends = () => {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => navigate(`/messages/${friendship.friend.id}`)}
+                            onClick={() => openChat(friendship.friend)}
                             className="h-8 sm:h-9 font-black arcade-text text-[10px] sm:text-xs border-2 px-2 sm:px-3"
                           >
                             <MessageSquare className="h-3 w-3 sm:mr-1" />

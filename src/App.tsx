@@ -5,8 +5,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { MusicPlayerProvider } from "@/contexts/MusicPlayerContext";
+import { ChatPopupProvider } from "@/contexts/ChatPopupContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { GlobalMusicPlayer } from "@/components/GlobalMusicPlayer";
+import { GlobalChatPopup } from "@/components/GlobalChatPopup";
 import { CloudProgressProvider } from "@/hooks/useCloudProgress";
 import Dashboard from "./pages/Dashboard";
 import Subjects from "./pages/Subjects";
@@ -32,112 +34,31 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <MusicPlayerProvider>
-            <AuthProvider>
+          <AuthProvider>
             <CloudProgressProvider>
-            <Routes>
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/subjects"
-              element={
-                <ProtectedRoute>
-                  <Subjects />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/subject/:id"
-              element={
-                <ProtectedRoute>
-                  <SubjectDetail />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/planner"
-              element={
-                <ProtectedRoute>
-                  <Planner />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/analytics"
-              element={
-                <ProtectedRoute>
-                  <Analytics />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/friends"
-              element={
-                <ProtectedRoute>
-                  <Friends />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/messages"
-              element={
-                <ProtectedRoute>
-                  <Messages />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/messages/:friendId"
-              element={
-                <ProtectedRoute>
-                  <Messages />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/chat"
-              element={
-                <ProtectedRoute>
-                  <EnhancedChat />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/settings"
-              element={
-                <ProtectedRoute>
-                  <ProfileSettings />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute>
-                  <Admin />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/resources"
-              element={
-                <ProtectedRoute>
-                  <Resources />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <GlobalMusicPlayer />
-        </CloudProgressProvider>
-        </AuthProvider>
+              <ChatPopupProvider>
+                <Routes>
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
+                  <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                  <Route path="/subjects" element={<ProtectedRoute><Subjects /></ProtectedRoute>} />
+                  <Route path="/subject/:id" element={<ProtectedRoute><SubjectDetail /></ProtectedRoute>} />
+                  <Route path="/planner" element={<ProtectedRoute><Planner /></ProtectedRoute>} />
+                  <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+                  <Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
+                  <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+                  <Route path="/messages/:friendId" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+                  <Route path="/chat" element={<ProtectedRoute><EnhancedChat /></ProtectedRoute>} />
+                  <Route path="/settings" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
+                  <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+                  <Route path="/resources" element={<ProtectedRoute><Resources /></ProtectedRoute>} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+                <GlobalChatPopup />
+                <GlobalMusicPlayer />
+              </ChatPopupProvider>
+            </CloudProgressProvider>
+          </AuthProvider>
         </MusicPlayerProvider>
       </BrowserRouter>
     </TooltipProvider>

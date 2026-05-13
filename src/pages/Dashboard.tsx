@@ -10,6 +10,7 @@ import { ArcadeNavbar } from "@/components/ArcadeNavbar";
 import { Card } from "@/components/ui/card";
 import { useCloudProgress } from "@/hooks/useCloudProgress";
 import { useStudyStreak } from "@/hooks/useStudyStreak";
+import { useFriends } from "@/hooks/useFriends";
 import { 
   Flame, 
   BookOpen, 
@@ -20,7 +21,10 @@ import {
   Loader2,
   Download,
   ScrollText,
-  X
+  X,
+  Users,
+  MessageSquare,
+  ArrowRight
 } from "lucide-react";
 import { Resource } from "@/hooks/useResources";
 
@@ -33,6 +37,7 @@ interface SubjectProgress {
 const Dashboard = () => {
   const { progress, loading } = useCloudProgress();
   const { streak: studyStreak } = useStudyStreak();
+  const { friends } = useFriends();
   const [viewMode, setViewMode] = useState<"card" | "list">("card");
   const [viewingResource, setViewingResource] = useState<Resource | null>(null);
 
@@ -241,6 +246,31 @@ const Dashboard = () => {
 
               <ArcadeTimer />
               <MusicPlayer />
+
+              {/* Study Buddies Card */}
+              <Link to="/buddies">
+                <Card className="p-4 bg-card/95 minecraft-block card-hover group relative overflow-hidden">
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{ background: 'radial-gradient(circle at 50% 50%, hsla(var(--primary), 0.1), transparent 70%)' }} />
+                  <div className="relative z-10">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-sm font-black arcade-text text-primary flex items-center gap-1.5">
+                        <Users className="h-4 w-4" /> STUDY BUDDIES
+                      </h3>
+                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-green-500/20 text-green-400 font-bold border border-green-500/30">NEW</span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground mb-3">Add friends, chat & track progress together!</p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-bold text-muted-foreground"><span className="text-lg font-black text-foreground">{friends.length}</span> buddies</span>
+                      </div>
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-primary group-hover:translate-x-1 transition-transform">
+                        Explore <ArrowRight className="h-3 w-3" />
+                      </span>
+                    </div>
+                  </div>
+                </Card>
+              </Link>
+
               <ExamCalendar />
             </div>
           </div>

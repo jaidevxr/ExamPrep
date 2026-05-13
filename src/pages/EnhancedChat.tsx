@@ -154,7 +154,7 @@ ${syllabusContext}
 If the user asks a non-study-related question, politely decline and steer them back to studying. Provide concise, accurate, and helpful educational answers.`;
 
       const model = ai.getGenerativeModel({
-        model: "gemini-1.5-flash",
+        model: "gemini-2.5-flash",
         systemInstruction: systemPrompt
       });
 

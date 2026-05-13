@@ -11,6 +11,7 @@ export interface DirectMessage {
   content: string;
   read: boolean;
   created_at: string;
+  reply_to: string | null;
 }
 
 export interface ChatThread {
@@ -127,17 +128,20 @@ export const useChat = () => {
   }, [user]);
 
   // Send a message
-  const sendMessage = useCallback(async (receiverId: string, content: string) => {
+  const sendMessage = useCallback(async (receiverId: string, content: string, replyToId?: string) => {
     if (!user || !content.trim()) return false;
 
     try {
+      const insertData: any = {
+        sender_id: user.id,
+        receiver_id: receiverId,
+        content: content.trim(),
+      };
+      if (replyToId) insertData.reply_to = replyToId;
+
       const { data, error } = await supabase
         .from('direct_messages')
-        .insert({
-          sender_id: user.id,
-          receiver_id: receiverId,
-          content: content.trim(),
-        })
+        .insert(insertData)
         .select()
         .single();
 

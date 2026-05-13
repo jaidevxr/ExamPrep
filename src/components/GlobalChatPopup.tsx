@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { useChatPopup } from '@/contexts/ChatPopupContext';
-import { useChat } from '@/hooks/useChat';
+import { useChat, DirectMessage } from '@/hooks/useChat';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   ArrowLeft, Send, MessageSquare, Loader2, Check, CheckCheck,
-  Maximize2, Minimize2, X,
+  Maximize2, Minimize2, X, Reply, CornerDownRight,
 } from 'lucide-react';
 
 export const GlobalChatPopup = () => {
@@ -17,28 +17,25 @@ export const GlobalChatPopup = () => {
   const [messageText, setMessageText] = useState('');
   const [sending, setSending] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
+  const [replyTo, setReplyTo] = useState<DirectMessage | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (activeFriend) {
       loadMessages(activeFriend.id);
+      setReplyTo(null);
       setTimeout(() => inputRef.current?.focus(), 200);
     }
   }, [activeFriend]);
 
-  // Reset maximized state when chat is closed
   useEffect(() => {
-    if (!isOpen) {
-      setIsMaximized(false);
-    }
+    if (!isOpen) { setIsMaximized(false); setReplyTo(null); }
   }, [isOpen]);
 
   useEffect(() => {
     if (!loadingMessages && messages.length > 0 && isOpen) {
-      setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
-      }, 50);
+      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'auto' }), 50);
     }
   }, [messages, loadingMessages, isOpen]);
 
@@ -48,10 +45,22 @@ export const GlobalChatPopup = () => {
     if (!messageText.trim() || sending) return;
     setSending(true);
     const text = messageText;
+    const replyId = replyTo?.id;
     setMessageText('');
-    await sendMessage(activeFriend.id, text);
+    setReplyTo(null);
+    await sendMessage(activeFriend.id, text, replyId);
     setSending(false);
     inputRef.current?.focus();
+  };
+
+  const handleReply = (msg: DirectMessage) => {
+    setReplyTo(msg);
+    inputRef.current?.focus();
+  };
+
+  const findReplyMsg = (replyId: string | null) => {
+    if (!replyId) return null;
+    return messages.find(m => m.id === replyId) || null;
   };
 
   const formatTime = (dateStr: string) => {
@@ -82,7 +91,6 @@ export const GlobalChatPopup = () => {
 
   const status = getOnlineStatus(activeFriend.last_seen);
 
-  // Group messages by date
   const groupedMessages = messages.reduce<{ date: string; msgs: typeof messages }[]>((groups, msg) => {
     const dateKey = formatDate(msg.created_at);
     const lastGroup = groups[groups.length - 1];
@@ -156,20 +164,46 @@ export const GlobalChatPopup = () => {
                     ? (new Date(msg.created_at).getTime() - new Date(prevMsg.created_at).getTime()) / 60000
                     : 999;
                   const showTail = !sameSender || timeDiff > 2;
+                  const repliedMsg = findReplyMsg(msg.reply_to);
 
                   return (
-                    <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'} ${showTail ? 'mt-1.5' : 'mt-0.5'}`}>
-                      <div className={`relative max-w-[80%] px-2.5 py-1 ${
+                    <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'} ${showTail ? 'mt-1.5' : 'mt-0.5'} group`}>
+                      <div className={`relative max-w-[80%] ${
                         isMe
                           ? 'bg-primary/90 text-primary-foreground rounded-l-xl rounded-tr-xl' + (showTail ? ' rounded-br-sm' : ' rounded-br-xl')
                           : 'bg-muted/80 text-foreground rounded-r-xl rounded-tl-xl' + (showTail ? ' rounded-bl-sm' : ' rounded-bl-xl')
                       }`}>
-                        <p className="text-[12px] leading-relaxed break-words whitespace-pre-wrap">{msg.content}</p>
-                        <div className={`flex items-center gap-1 mt-0.5 ${isMe ? 'justify-end' : 'justify-start'}`}>
-                          <span className="text-[8px] opacity-60">{formatTime(msg.created_at)}</span>
-                          {isMe && (msg.read ? <CheckCheck className="h-2.5 w-2.5 text-blue-300" /> : <Check className="h-2.5 w-2.5 opacity-60" />)}
+                        {/* Reply quote */}
+                        {repliedMsg && (
+                          <div className={`mx-1.5 mt-1.5 px-2 py-1 rounded border-l-2 ${
+                            isMe ? 'bg-white/10 border-white/40' : 'bg-primary/10 border-primary/40'
+                          }`}>
+                            <p className={`text-[9px] font-bold ${isMe ? 'text-white/70' : 'text-primary/70'}`}>
+                              {repliedMsg.sender_id === user?.id ? 'You' : activeFriend.username}
+                            </p>
+                            <p className={`text-[10px] truncate ${isMe ? 'text-white/60' : 'text-muted-foreground'}`}>
+                              {repliedMsg.content.length > 60 ? repliedMsg.content.slice(0, 60) + '...' : repliedMsg.content}
+                            </p>
+                          </div>
+                        )}
+                        <div className="px-2.5 py-1">
+                          <p className="text-[12px] leading-relaxed break-words whitespace-pre-wrap">{msg.content}</p>
+                          <div className={`flex items-center gap-1 mt-0.5 ${isMe ? 'justify-end' : 'justify-start'}`}>
+                            <span className="text-[8px] opacity-60">{formatTime(msg.created_at)}</span>
+                            {isMe && (msg.read ? <CheckCheck className="h-2.5 w-2.5 text-blue-300" /> : <Check className="h-2.5 w-2.5 opacity-60" />)}
+                          </div>
                         </div>
                       </div>
+                      {/* Reply button (shows on hover) */}
+                      <button
+                        onClick={() => handleReply(msg)}
+                        className={`self-center opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-muted/50 ${
+                          isMe ? 'order-first mr-1' : 'ml-1'
+                        }`}
+                        title="Reply"
+                      >
+                        <Reply className="h-3 w-3 text-muted-foreground" />
+                      </button>
                     </div>
                   );
                 })}
@@ -180,6 +214,24 @@ export const GlobalChatPopup = () => {
         )}
       </div>
 
+      {/* Reply preview bar */}
+      {replyTo && (
+        <div className="border-t bg-muted/40 px-3 py-1.5 flex items-center gap-2 flex-shrink-0">
+          <CornerDownRight className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+          <div className="flex-1 min-w-0 border-l-2 border-primary/50 pl-2">
+            <p className="text-[9px] font-bold text-primary">
+              {replyTo.sender_id === user?.id ? 'You' : activeFriend.username}
+            </p>
+            <p className="text-[10px] text-muted-foreground truncate">
+              {replyTo.content.length > 50 ? replyTo.content.slice(0, 50) + '...' : replyTo.content}
+            </p>
+          </div>
+          <Button variant="ghost" size="icon" className="h-5 w-5 flex-shrink-0" onClick={() => setReplyTo(null)}>
+            <X className="h-3 w-3" />
+          </Button>
+        </div>
+      )}
+
       {/* Input */}
       <div className="border-t bg-muted/30 px-2 py-2 flex-shrink-0">
         <div className="flex items-center gap-1.5">
@@ -188,7 +240,7 @@ export const GlobalChatPopup = () => {
             value={messageText}
             onChange={(e) => setMessageText(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-            placeholder="Type a message..."
+            placeholder={replyTo ? 'Reply...' : 'Type a message...'}
             className="flex-1 h-8 border bg-background font-medium text-xs"
             disabled={sending}
           />

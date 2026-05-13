@@ -89,13 +89,19 @@ export const ExamCountdown = ({ subject, progress }: ExamCountdownProps) => {
               <div className="flex items-center gap-2 mt-1">
                 <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold">{subject.code}</p>
                 {notesCount > 0 && (
-                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 text-[9px] font-bold">
-                    <BookOpen className="h-2.5 w-2.5" />{notesCount}
+                  <span
+                    className="inline-flex items-center px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 text-[9px] font-bold cursor-pointer hover:bg-blue-500/30 transition-colors"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); const note = resources.find(r => r.subject_id === subject.id && r.type === 'notes'); if (note) window.open(note.file_url, '_blank'); }}
+                  >
+                    Notes
                   </span>
                 )}
                 {pyqsCount > 0 && (
-                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400 text-[9px] font-bold">
-                    <ScrollText className="h-2.5 w-2.5" />{pyqsCount}
+                  <span
+                    className="inline-flex items-center px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400 text-[9px] font-bold cursor-pointer hover:bg-orange-500/30 transition-colors"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); const pyq = resources.find(r => r.subject_id === subject.id && r.type === 'pyq'); if (pyq) window.open(pyq.file_url, '_blank'); }}
+                  >
+                    PYQs
                   </span>
                 )}
               </div>

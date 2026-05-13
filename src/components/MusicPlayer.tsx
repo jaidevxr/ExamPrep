@@ -86,6 +86,14 @@ export const MusicPlayer = () => {
     if (value?.[0] && duration > 0) {
       const seekTime = (value[0] / 100) * duration;
       window.dispatchEvent(new CustomEvent("audio-seek", { detail: seekTime }));
+      
+      // Sync visual video iframe
+      if (iframeRef.current?.contentWindow) {
+        iframeRef.current.contentWindow.postMessage(
+          JSON.stringify({ event: "command", func: "seekTo", args: [seekTime, true] }),
+          "*"
+        );
+      }
     }
   };
 

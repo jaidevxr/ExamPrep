@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, BookOpen, Calendar, BarChart3, Bot, LogOut, User, Settings, Users, MessageSquare } from "lucide-react";
+import { Home, BookOpen, Calendar, BarChart3, Bot, LogOut, User, Settings, Users, MessageSquare, FileText, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +15,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+const ADMIN_EMAIL = 'jaiy9956@gmail.com';
+
 export const ArcadeNavbar = () => {
   const location = useLocation();
   const { signOut, user } = useAuth();
@@ -22,9 +24,11 @@ export const ArcadeNavbar = () => {
   const navItems = [
     { path: "/", icon: Home, label: "Dashboard" },
     { path: "/friends", icon: Users, label: "Buddies" },
+    { path: "/resources", icon: FileText, label: "Resources" },
     { path: "/planner", icon: Calendar, label: "Planner" },
     { path: "/analytics", icon: BarChart3, label: "Analytics" },
     { path: "/chat", icon: Bot, label: "AI Chat" },
+    ...(user?.email === ADMIN_EMAIL ? [{ path: "/admin", icon: Shield, label: "Admin" }] : []),
   ];
 
   const isActive = (path: string) => {

@@ -6,11 +6,15 @@ import { subjects } from "@/data/subjects";
 import { useCloudProgress } from "@/hooks/useCloudProgress";
 import { useStudyStreak } from "@/hooks/useStudyStreak";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
-import { TrendingUp, Target, BookOpen, CheckCircle2, Clock, Zap, Loader2 } from "lucide-react";
+import { TrendingUp, Target, BookOpen, CheckCircle2, Clock, Zap, Loader2, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useProfile } from "@/hooks/useProfile";
+import { exportProgressPDF } from "@/utils/exportPDF";
 
 const Analytics = () => {
   const { progress, loading } = useCloudProgress();
   const { streak: studyStreak } = useStudyStreak();
+  const { profile } = useProfile();
 
   const calculateProgress = (subjectId: string) => {
     const subject = subjects.find((s) => s.id === subjectId);
@@ -131,6 +135,18 @@ const Analytics = () => {
             <p className="text-xs sm:text-sm text-muted-foreground uppercase tracking-wider font-bold">
               Track Your Study Progress
             </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => exportProgressPDF(
+                profile?.username || 'Student',
+                profile?.study_id || 'N/A',
+                progress
+              )}
+              className="mt-2 font-bold"
+            >
+              <Download className="h-4 w-4 mr-1" /> Export PDF
+            </Button>
           </div>
 
           {/* Key Metrics */}

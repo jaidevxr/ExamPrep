@@ -17,6 +17,8 @@ import Analytics from "./pages/Analytics";
 import Friends from "./pages/Friends";
 import Messages from "./pages/Messages";
 import ProfileSettings from "./pages/ProfileSettings";
+import Admin from "./pages/Admin";
+import Resources from "./pages/Resources";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
@@ -112,6 +114,22 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <ProfileSettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <Admin />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/resources"
+              element={
+                <ProtectedRoute>
+                  <Resources />
                 </ProtectedRoute>
               }
             />

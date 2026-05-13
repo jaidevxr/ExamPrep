@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFriends, FriendProfile, Friendship } from './useFriends';
+import { usePushNotifications } from './usePushNotifications';
 
 export interface DirectMessage {
   id: string;
@@ -22,6 +23,7 @@ export interface ChatThread {
 export const useChat = () => {
   const { user } = useAuth();
   const { friends } = useFriends();
+  const { sendNotification } = usePushNotifications();
   const [threads, setThreads] = useState<ChatThread[]>([]);
   const [messages, setMessages] = useState<DirectMessage[]>([]);
   const [loadingThreads, setLoadingThreads] = useState(true);
@@ -198,6 +200,14 @@ export const useChat = () => {
               .update({ read: true })
               .eq('id', newMsg.id)
               .then();
+          } else if (newMsg.sender_id !== user.id) {
+            // Not in active chat — send browser push notification
+            const senderThread = threads.find(t => t.friend.id === newMsg.sender_id);
+            const senderName = senderThread?.friend.username || 'Someone';
+            sendNotification(
+              `${senderName} sent a message`,
+              newMsg.content.length > 50 ? newMsg.content.slice(0, 50) + '...' : newMsg.content
+            );
           }
 
           // Update threads

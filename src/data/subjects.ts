@@ -265,6 +265,96 @@ export const subjects: Subject[] = [
     ]
   },
   {
+    id: "design-analysis-algorithms",
+    name: "Design & Analysis of Algorithms",
+    code: "NCS4602",
+    examDate: "2026-05-26",
+    examTime: "2:00 PM - 5:00 PM",
+    color: "warning",
+    units: [
+      {
+        id: "daa-unit1",
+        title: "Module 1: Introduction & Advanced Data Structures (30 Hrs)",
+        topics: [
+          { id: "daa-1-h1", title: "Introduction and Advanced Data Structure", completed: false, important: false, isHeading: true },
+          { id: "daa-1-1", title: "Notion of Algorithm", completed: false, important: true },
+          { id: "daa-1-2", title: "Analysis of Algorithms", completed: false, important: true },
+          { id: "daa-1-3", title: "Designing of Algorithms", completed: false, important: true },
+          { id: "daa-1-4", title: "Growth of Functions", completed: false, important: true },
+          { id: "daa-1-5", title: "Master's Theorem", completed: false, important: true },
+          { id: "daa-1-6", title: "Asymptotic Notations", completed: false, important: true },
+          { id: "daa-1-7", title: "Basic Efficiency Classes", completed: false, important: true },
+          { id: "daa-1-h2", title: "Sorting and Searching Algorithms", completed: false, important: false, isHeading: true },
+          { id: "daa-1-8", title: "Insertion Sort", completed: false, important: true },
+          { id: "daa-1-9", title: "Selection Sort", completed: false, important: true },
+          { id: "daa-1-10", title: "Bubble Sort", completed: false, important: true },
+          { id: "daa-1-h3", title: "Divide and Conquer", completed: false, important: false, isHeading: true },
+          { id: "daa-1-11", title: "Merge Sort", completed: false, important: true },
+          { id: "daa-1-12", title: "Quick Sort", completed: false, important: true },
+          { id: "daa-1-13", title: "Heap Sort", completed: false, important: true },
+          { id: "daa-1-14", title: "Sequential Search", completed: false, important: true },
+          { id: "daa-1-15", title: "Binary Search", completed: false, important: true },
+        ]
+      },
+      {
+        id: "daa-unit2",
+        title: "Module 2: Advanced Data Structures & Greedy Methods (30 Hrs)",
+        topics: [
+          { id: "daa-2-h1", title: "Advanced Data Structures", completed: false, important: false, isHeading: true },
+          { id: "daa-2-1", title: "Red-Black Trees", completed: false, important: true },
+          { id: "daa-2-2", title: "B – Trees", completed: false, important: true },
+          { id: "daa-2-3", title: "Binomial Heaps", completed: false, important: true },
+          { id: "daa-2-4", title: "Fibonacci Heaps", completed: false, important: true },
+          { id: "daa-2-h2", title: "Greedy Methods", completed: false, important: false, isHeading: true },
+          { id: "daa-2-5", title: "Optimal Reliability Allocation", completed: false, important: true },
+          { id: "daa-2-6", title: "Knapsack Problem (Greedy)", completed: false, important: true },
+          { id: "daa-2-7", title: "Minimum Spanning Trees", completed: false, important: true },
+          { id: "daa-2-8", title: "Prim's Algorithm", completed: false, important: true },
+          { id: "daa-2-9", title: "Kruskal's Algorithm", completed: false, important: true },
+          { id: "daa-2-h3", title: "Single Source Shortest Paths", completed: false, important: false, isHeading: true },
+          { id: "daa-2-10", title: "Dijkstra's Algorithm", completed: false, important: true },
+          { id: "daa-2-11", title: "Bellman-Ford Algorithm", completed: false, important: true },
+        ]
+      },
+      {
+        id: "daa-unit3",
+        title: "Module 3: Dynamic Programming & Backtracking (30 Hrs)",
+        topics: [
+          { id: "daa-3-h1", title: "Dynamic Programming", completed: false, important: false, isHeading: true },
+          { id: "daa-3-1", title: "Knapsack Problem (DP)", completed: false, important: true },
+          { id: "daa-3-h2", title: "All Pair Shortest Paths", completed: false, important: false, isHeading: true },
+          { id: "daa-3-2", title: "Warshall's Algorithm", completed: false, important: true },
+          { id: "daa-3-3", title: "Floyd's Algorithm", completed: false, important: true },
+          { id: "daa-3-4", title: "Resource Allocation Problem", completed: false, important: true },
+          { id: "daa-3-5", title: "Matrix Chain Multiplication", completed: false, important: true },
+          { id: "daa-3-h3", title: "Backtracking", completed: false, important: false, isHeading: true },
+          { id: "daa-3-6", title: "Travelling Salesman Problem", completed: false, important: true },
+          { id: "daa-3-7", title: "Graph Coloring", completed: false, important: true },
+          { id: "daa-3-8", title: "n-Queen Problem", completed: false, important: true },
+          { id: "daa-3-9", title: "Hamiltonian Cycles", completed: false, important: true },
+          { id: "daa-3-10", title: "Sum of Subsets", completed: false, important: true },
+          { id: "daa-3-h4", title: "Branch and Bound", completed: false, important: false, isHeading: true },
+          { id: "daa-3-11", title: "Branch and Bound with Examples", completed: false, important: true },
+        ]
+      },
+      {
+        id: "daa-unit4",
+        title: "Module 4: Selected Topics (30 Hrs)",
+        topics: [
+          { id: "daa-4-h1", title: "String Matching", completed: false, important: false, isHeading: true },
+          { id: "daa-4-1", title: "The Naive Method", completed: false, important: true },
+          { id: "daa-4-2", title: "Rabin-Karp Method", completed: false, important: true },
+          { id: "daa-4-3", title: "Boyer-Moore Algorithm", completed: false, important: true },
+          { id: "daa-4-4", title: "Knuth-Morris-Pratt (KMP) Algorithm", completed: false, important: true },
+          { id: "daa-4-h2", title: "Computational Complexity", completed: false, important: false, isHeading: true },
+          { id: "daa-4-5", title: "Theory of NP-Completeness", completed: false, important: true },
+          { id: "daa-4-6", title: "Approximation Algorithms", completed: false, important: true },
+          { id: "daa-4-7", title: "Randomized Algorithms", completed: false, important: true },
+        ]
+      }
+    ]
+  },
+  {
     id: "cyber-law-security",
     name: "Cyber Law and Security",
     code: "NPEC43213",

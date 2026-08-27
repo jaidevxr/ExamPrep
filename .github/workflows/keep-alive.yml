@@ -2,8 +2,8 @@ name: Keep Supabase Awake
 
 on:
   schedule:
-    # Runs every 3 days at 00:00 UTC to prevent Supabase auto-pausing (which triggers after 7 days)
-    - cron: '0 0 */3 * *'
+    # Runs every day at 00:00 UTC to ensure Supabase never auto-pauses
+    - cron: '0 0 * * *'
   workflow_dispatch: # Allows manual trigger from GitHub Actions tab anytime
 
 jobs:

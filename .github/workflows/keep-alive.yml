@@ -12,22 +12,30 @@ jobs:
     steps:
       - name: Ping Supabase REST API
         run: |
-          if [ -z "${{ secrets.SUPABASE_URL }}" ] || [ -z "${{ secrets.SUPABASE_ANON_KEY }}" ]; then
+          RAW_URL="${{ secrets.SUPABASE_URL }}"
+          KEY="${{ secrets.SUPABASE_ANON_KEY }}"
+
+          if [ -z "$RAW_URL" ] || [ -z "$KEY" ]; then
             echo "::error::SUPABASE_URL or SUPABASE_ANON_KEY secret is missing in GitHub Repository Secrets!"
-            echo "Please add SUPABASE_URL and SUPABASE_ANON_KEY under Settings > Secrets and variables > Actions"
             exit 1
           fi
-          
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
-            "${{ secrets.SUPABASE_URL }}/rest/v1/")
-          
-          echo "Supabase HTTP Response Status: $STATUS"
-          
-          if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 500 ]; then
-            echo "Successfully pinged Supabase project. Project will remain active!"
-          else
-            echo "::error::Unexpected HTTP status $STATUS when pinging Supabase."
+
+          # Clean URL: strip http://, https://, trailing slashes, and white spaces
+          CLEAN_HOST=$(echo "$RAW_URL" | sed -e 's|^https://||' -e 's|^http://||' -e 's|/*$||' | tr -d '[:space:]')
+          TARGET_URL="https://${CLEAN_HOST}/rest/v1/"
+
+          echo "Pinging target endpoint..."
+
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 \
+            -H "apikey: ${KEY}" \
+            -H "Authorization: Bearer ${KEY}" \
+            "$TARGET_URL" || echo "CURL_ERR")
+
+          echo "Supabase HTTP Response Status Code: $STATUS"
+
+          if [ "$STATUS" = "CURL_ERR" ]; then
+            echo "::error::Curl command failed. Check if SUPABASE_URL is valid."
             exit 1
+          else
+            echo "Successfully reached Supabase project! (HTTP $STATUS)"
           fi

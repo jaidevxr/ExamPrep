@@ -17,14 +17,17 @@ jobs:
             echo "Please add SUPABASE_URL and SUPABASE_ANON_KEY under Settings > Secrets and variables > Actions"
             exit 1
           fi
-          
+
+          SUPABASE_URL="${{ secrets.SUPABASE_URL }}"
+          SUPABASE_URL="${SUPABASE_URL%/}"
+
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
             -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
-            "${{ secrets.SUPABASE_URL }}/rest/v1/")
-          
+            "${SUPABASE_URL}/rest/v1/")
+
           echo "Supabase HTTP Response Status: $STATUS"
-          
+
           if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 500 ]; then
             echo "Successfully pinged Supabase project. Project will remain active!"
           else

@@ -96,7 +96,7 @@ const Analytics = () => {
     return subjects
       .map((subject) => {
         const examDate = new Date(subject.examDate);
-        examDate.setHours(14, 0, 0, 0);
+        examDate.setHours(10, 0, 0, 0);
         const daysLeft = Math.ceil((examDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
         return {
           ...subject,

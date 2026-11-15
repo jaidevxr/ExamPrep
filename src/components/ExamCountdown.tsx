@@ -22,12 +22,12 @@ export const ExamCountdown = ({ subject, progress, onViewResource }: ExamCountdo
       const now = new Date();
       const examDate = new Date(subject.examDate);
       
-      // Set exam time to 2 PM (14:00) on exam day
-      examDate.setHours(14, 0, 0, 0);
+      // Set exam time to 10 AM (10:00) on exam day
+      examDate.setHours(10, 0, 0, 0);
       
-      // Exam ends at 5 PM (17:00) - 3 hours duration
+      // Exam ends at 1 PM (13:00) - 3 hours duration
       const examEndDate = new Date(subject.examDate);
-      examEndDate.setHours(17, 0, 0, 0);
+      examEndDate.setHours(13, 0, 0, 0);
       
       const diff = examDate.getTime() - now.getTime();
 

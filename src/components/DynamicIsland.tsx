@@ -43,7 +43,7 @@ export const DynamicIsland = ({ nextExam, daysUntilExam }: DynamicIslandProps) =
   const getUrgencyText = () => {
     const now = new Date();
     const examDateTime = new Date(nextExam.examDate);
-    examDateTime.setHours(14, 0, 0, 0); // 2 PM
+    examDateTime.setHours(10, 0, 0, 0); // 10 AM
     
     const diff = examDateTime.getTime() - now.getTime();
     

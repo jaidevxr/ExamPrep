@@ -77,7 +77,7 @@ const Dashboard = () => {
 
     const next = sortedSubjects.find((subject) => {
       const examDate = new Date(subject.examDate);
-      examDate.setHours(14, 0, 0, 0);
+      examDate.setHours(10, 0, 0, 0);
       return examDate.getTime() >= now.getTime();
     });
 
@@ -89,7 +89,7 @@ const Dashboard = () => {
     if (!upcomingExam) return 0;
 
     const examDate = new Date(upcomingExam.examDate);
-    examDate.setHours(14, 0, 0, 0); // Set to 2 PM
+    examDate.setHours(10, 0, 0, 0); // Set to 10 AM
 
     const diffMs = examDate.getTime() - now.getTime();
     if (diffMs <= 0) return 0;

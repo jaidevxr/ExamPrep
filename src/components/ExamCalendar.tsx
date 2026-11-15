@@ -86,10 +86,10 @@ export const ExamCalendar = () => {
   const calculateTimeLeft = (examDate: string) => {
     const now = new Date();
     const exam = new Date(examDate);
-    exam.setHours(14, 0, 0, 0); // Exam starts at 2 PM
+    exam.setHours(10, 0, 0, 0); // Exam starts at 10 AM
     
     const examEnd = new Date(exam);
-    examEnd.setHours(17, 0, 0, 0); // Exam ends at 5 PM (3 hours duration)
+    examEnd.setHours(13, 0, 0, 0); // Exam ends at 1 PM (3 hours duration)
     
     const diff = exam.getTime() - now.getTime();
     

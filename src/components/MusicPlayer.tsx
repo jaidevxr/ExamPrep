@@ -17,9 +17,11 @@ interface MusicSource {
 }
 
 const defaultMusicSources: MusicSource[] = [
-  { id: "lofi-girl", name: "Lofi Girl - Beats to Study", videoId: "jfKfPfyJRdk", type: "preset" },
-  { id: "chillhop", name: "Chillhop Radio", videoId: "5yx6BWlEVcY", type: "preset" },
-  { id: "college-music", name: "College Music", videoId: "lTRiuFIWV54", type: "preset" },
+  { id: "lofi-girl", name: "Lofi Girl - Beats to Study/Relax", videoId: "jfKfPfyJRdk", type: "preset" },
+  { id: "chillhop", name: "Chillhop Radio 🐾", videoId: "7NOSDKb0HlU", type: "preset" },
+  { id: "lofi-hiphop", name: "Lo-Fi Hip Hop Mix 📚", videoId: "DWcJFNfaw9c", type: "preset" },
+  { id: "study-jazz", name: "Study Jazz – Relaxing BGM", videoId: "BofMBMBtEoY", type: "preset" },
+  { id: "coffee-shop", name: "Coffee Shop Ambience ☕", videoId: "h2zkV-l_TbY", type: "preset" },
 ];
 
 const extractYouTubeId = (input: string): string | null => {

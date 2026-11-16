@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { ArcadeNavbar } from "@/components/ArcadeNavbar";
+import { usePageSEO } from "@/hooks/usePageSEO";
 
 interface ImportantTopics {
   [subjectId: string]: {
@@ -43,6 +44,14 @@ const SubjectDetail = () => {
   const notes = subjectResources.filter(r => r.type === 'notes');
 
   const subject = subjects.find((s) => s.id === id);
+
+  usePageSEO({
+    title: subject ? `${subject.name} (${subject.code}) Syllabus & Notes` : "Subject Details",
+    description: subject
+      ? `Complete syllabus, topic tracking, exam countdown, and study resources for ${subject.name} (${subject.code}) - 7th Semester BBDU.`
+      : "Complete subject syllabus, revision tracking, and exam resources.",
+    canonicalPath: id ? `/subject/${id}` : "/subjects",
+  });
 
   const toggleTopic = async (topicId: string) => {
     if (!subject) return;

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { ArcadeNavbar } from "@/components/ArcadeNavbar";
+import { usePageSEO } from "@/hooks/usePageSEO";
 
 interface Task {
   id: string;
@@ -24,6 +25,12 @@ interface Task {
 }
 
 const Planner = () => {
+  usePageSEO({
+    title: "Study Planner & Daily Schedule",
+    description: "Plan daily study blocks, manage revision sessions across morning, afternoon, and night periods for exams.",
+    canonicalPath: "/planner",
+  });
+
   const [tasks, setTasks] = useLocalStorage<Task[]>("daily-tasks", []);
   const [newTask, setNewTask] = useState("");
   const [newSubject, setNewSubject] = useState("");

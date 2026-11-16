@@ -5,8 +5,15 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { ChevronRight, Loader2 } from "lucide-react";
 import { ArcadeNavbar } from "@/components/ArcadeNavbar";
+import { usePageSEO } from "@/hooks/usePageSEO";
 
 const Subjects = () => {
+  usePageSEO({
+    title: "All Subjects - 7th Semester B.Tech Syllabus",
+    description: "Explore all 7th semester subjects: Computer Vision, Disaster Management, Distributed Systems, and Soft Computing with modular unit syllabus breakdowns.",
+    canonicalPath: "/subjects",
+  });
+
   const { progress, loading } = useCloudProgress();
 
   const calculateProgress = (subjectId: string) => {

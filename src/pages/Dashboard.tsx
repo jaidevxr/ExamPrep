@@ -27,6 +27,7 @@ import {
   ArrowRight
 } from "lucide-react";
 import { Resource } from "@/hooks/useResources";
+import { usePageSEO } from "@/hooks/usePageSEO";
 
 interface SubjectProgress {
   [subjectId: string]: {
@@ -35,6 +36,12 @@ interface SubjectProgress {
 }
 
 const Dashboard = () => {
+  usePageSEO({
+    title: "Dashboard - 7th Sem Exam Missions & Study Tracker",
+    description: "Personalized dashboard for 7th Sem B.Tech CSE. Real-time countdowns, mission progress, focus Pomodoro timer, and exam calendar.",
+    canonicalPath: "/",
+  });
+
   const { progress, loading } = useCloudProgress();
   const { streak: studyStreak } = useStudyStreak();
   const { friends } = useFriends();

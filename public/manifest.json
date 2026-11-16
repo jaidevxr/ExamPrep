@@ -1,17 +1,28 @@
 {
-  "name": "ExamPrep Pro",
-  "short_name": "ExamPrep",
-  "description": "Your Personal Study Dashboard - Track progress, chat with study buddies, ace your exams!",
+  "name": "ExamPrep Pro - All-in-One Exam Preparation & Study Dashboard",
+  "short_name": "ExamPrep Pro",
+  "description": "Your personal exam preparation dashboard. Track syllabus progress, focus with lofi beats & pomodoro timer, manage exam countdowns, and study notes & PYQs.",
   "start_url": "/",
+  "id": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0a0e1a",
   "theme_color": "#eab308",
   "orientation": "portrait-primary",
+  "categories": [
+    "education",
+    "productivity"
+  ],
   "icons": [
     {
       "src": "/favicon.ico",
-      "sizes": "64x64",
+      "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
     },
     {
       "src": "/icon-192.png",

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+  
+  <!-- Home / Dashboard -->
+  <url>
+    <loc>https://examprep-pxp.vercel.app/</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- All Subjects / Syllabus Tracker -->
+  <url>
+    <loc>https://examprep-pxp.vercel.app/subjects</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- 7th Sem Subject: Computer Vision -->
+  <url>
+    <loc>https://examprep-pxp.vercel.app/subject/computer-vision</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- 7th Sem Subject: Disaster Management -->
+  <url>
+    <loc>https://examprep-pxp.vercel.app/subject/disaster-management</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- 7th Sem Subject: Distributed Systems -->
+  <url>
+    <loc>https://examprep-pxp.vercel.app/subject/distributed-systems</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- 7th Sem Subject: Soft Computing -->
+  <url>
+    <loc>https://examprep-pxp.vercel.app/subject/soft-computing</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Study Planner & Schedule -->
+  <url>
+    <loc>https://examprep-pxp.vercel.app/planner</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Notes & PYQs Resources -->
+  <url>
+    <loc>https://examprep-pxp.vercel.app/resources</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Analytics & Study Streaks -->
+  <url>
+    <loc>https://examprep-pxp.vercel.app/analytics</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Study Buddies & Friends -->
+  <url>
+    <loc>https://examprep-pxp.vercel.app/friends</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Authentication -->
+  <url>
+    <loc>https://examprep-pxp.vercel.app/auth</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+</urlset>

@@ -1,25 +1,152 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <!-- Primary Meta Tags -->
+    <title>ExamPrep Pro - All-in-One Exam Preparation, Syllabus Tracker & Study Dashboard</title>
+    <meta name="title" content="ExamPrep Pro - All-in-One Exam Preparation, Syllabus Tracker & Study Dashboard" />
+    <meta name="description" content="Ace your 7th Semester university exams with ExamPrep Pro. Real-time countdowns, full syllabus tracker for Computer Vision, Disaster Management, Distributed Systems, Soft Computing, Arcade Pomodoro timer, lofi study beats, and curated PYQs." />
+    <meta name="keywords" content="ExamPrep, ExamPrep Pro, exam preparation, syllabus tracker, study dashboard, BBDU exams 2026, 7th semester CSE, Computer Vision NPEC43232, Disaster Management OE43101, Distributed Systems NCS4701, Soft Computing NCS4702, Pomodoro timer, lofi study music, previous year questions, PYQ, study streak, study buddies" />
+    <meta name="author" content="ExamPrep Pro" />
+    <meta name="application-name" content="ExamPrep Pro" />
+    <meta name="generator" content="Vite + React" />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://examprep-pxp.vercel.app/" />
+
+    <!-- Search Engine Crawlers & Indexing -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+
+    <!-- Google Search Console Verification -->
+    <meta name="google-site-verification" content="google-site-verification-token" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ExamPrep Pro" />
+    <meta property="og:url" content="https://examprep-pxp.vercel.app/" />
+    <meta property="og:title" content="ExamPrep Pro - All-in-One Exam Preparation & Study Dashboard" />
+    <meta property="og:description" content="Ace your 7th Semester university exams with ExamPrep Pro. Real-time countdowns, full syllabus tracker, Arcade Pomodoro timer, lofi study beats, and curated PYQs." />
+    <meta property="og:image" content="https://examprep-pxp.vercel.app/ogimage.jpg" />
+    <meta property="og:image:secure_url" content="https://examprep-pxp.vercel.app/ogimage.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="ExamPrep Pro - Study Dashboard Preview" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://examprep-pxp.vercel.app/" />
+    <meta name="twitter:title" content="ExamPrep Pro - All-in-One Exam Preparation & Study Dashboard" />
+    <meta name="twitter:description" content="Ace your 7th Semester university exams with ExamPrep Pro. Real-time countdowns, full syllabus tracker, Arcade Pomodoro timer, lofi study beats, and curated PYQs." />
+    <meta name="twitter:image" content="https://examprep-pxp.vercel.app/ogimage.jpg" />
+    <meta name="twitter:image:alt" content="ExamPrep Pro - Study Dashboard Preview" />
+
+    <!-- Icons & Favicons -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.json" />
+
+    <!-- Mobile & PWA Theme -->
     <meta name="theme-color" content="#eab308" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <link rel="apple-touch-icon" href="/favicon.ico" />
+    <meta name="apple-mobile-web-app-title" content="ExamPrep Pro" />
+    <meta name="mobile-web-app-capable" content="yes" />
 
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>ExamPrep Pro - Your Personal Study Dashboard</title>
-    <meta name="description" content="Personalized exam preparation dashboard to track progress, manage study sessions" />
-    <meta name="author" content="ExamPrep Pro" />
+    <!-- Fonts preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
 
-    <meta property="og:title" content="ExamPrep" />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="/ogimage.jpg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <!-- Structured Data (JSON-LD) for Google Rich Snippets -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://examprep-pxp.vercel.app/#website",
+          "url": "https://examprep-pxp.vercel.app/",
+          "name": "ExamPrep Pro",
+          "description": "All-in-One Exam Preparation, Syllabus Tracker & Study Dashboard",
+          "inLanguage": "en-US",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://examprep-pxp.vercel.app/subjects?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@type": "WebApplication",
+          "@id": "https://examprep-pxp.vercel.app/#application",
+          "name": "ExamPrep Pro",
+          "url": "https://examprep-pxp.vercel.app/",
+          "applicationCategory": "EducationalApplication",
+          "operatingSystem": "All",
+          "description": "Personalized exam preparation dashboard featuring real-time exam countdowns, subject syllabus trackers, Pomodoro timer, lofi study room, and collaborative study buddies.",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "featureList": [
+            "Real-time exam countdown with minute-by-minute urgency tracking",
+            "Full syllabus tracker for 7th Semester B.Tech CSE",
+            "Arcade-themed Pomodoro focus timer with gamified stats",
+            "Synchronized lofi study music player",
+            "Interactive monthly exam calendar with instant syllabus overview",
+            "Curated study resources, lecture notes, and previous year question papers"
+          ]
+        },
+        {
+          "@type": "ItemList",
+          "@id": "https://examprep-pxp.vercel.app/#courses",
+          "name": "7th Semester Examination Subjects",
+          "itemListElement": [
+            {
+              "@type": "Course",
+              "position": 1,
+              "name": "Computer Vision",
+              "courseCode": "NPEC43232",
+              "description": "Image formation, linear filtering, deep learning, recognition, feature detection and motion estimation.",
+              "url": "https://examprep-pxp.vercel.app/subject/computer-vision"
+            },
+            {
+              "@type": "Course",
+              "position": 2,
+              "name": "Disaster Management",
+              "courseCode": "OE43101",
+              "description": "Environmental hazards, volcanic and earthquake disasters, soil erosion, disaster preparedness and relief measures.",
+              "url": "https://examprep-pxp.vercel.app/subject/disaster-management"
+            },
+            {
+              "@type": "Course",
+              "position": 3,
+              "name": "Distributed Systems",
+              "courseCode": "NCS4701",
+              "description": "System models, logical clocks, mutual exclusion, deadlock detection, agreement protocols, distributed file systems and failure recovery.",
+              "url": "https://examprep-pxp.vercel.app/subject/distributed-systems"
+            },
+            {
+              "@type": "Course",
+              "position": 4,
+              "name": "Soft Computing",
+              "courseCode": "NCS4702",
+              "description": "Artificial intelligence heuristic search, artificial neural networks, backpropagation, and fuzzy logic systems.",
+              "url": "https://examprep-pxp.vercel.app/subject/soft-computing"
+            }
+          ]
+        }
+      ]
+    }
+    </script>
   </head>
 
   <body>
@@ -34,4 +161,3 @@
     </script>
   </body>
 </html>
-

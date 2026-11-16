@@ -22,8 +22,15 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
+import { usePageSEO } from '@/hooks/usePageSEO';
 
 export default function Resources() {
+  usePageSEO({
+    title: "Study Resources, Notes & PYQs",
+    description: "Download and view lecture notes, handouts, and previous years question papers (PYQs) for semester exam preparation.",
+    canonicalPath: "/resources",
+  });
+
   const navigate = useNavigate();
   const { resources, loading, uploading, isAdmin, loadResources, uploadResource, deleteResource } = useResources();
   const fileInputRef = useRef<HTMLInputElement>(null);

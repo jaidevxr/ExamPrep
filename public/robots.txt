@@ -1,8 +1,31 @@
+# Robots.txt for ExamPrep Pro
+# https://www.robotstxt.org/robotstxt.html
+
 User-agent: Googlebot
 Allow: /
+Allow: /subjects
+Allow: /subject/*
+Allow: /planner
+Allow: /resources
+Allow: /analytics
+Allow: /auth
+Disallow: /admin
+Disallow: /settings
+Disallow: /messages
+Disallow: /messages/*
 
 User-agent: Bingbot
 Allow: /
+Allow: /subjects
+Allow: /subject/*
+Allow: /planner
+Allow: /resources
+Allow: /analytics
+Allow: /auth
+Disallow: /admin
+Disallow: /settings
+Disallow: /messages
+Disallow: /messages/*
 
 User-agent: Twitterbot
 Allow: /
@@ -12,3 +35,17 @@ Allow: /
 
 User-agent: *
 Allow: /
+Allow: /subjects
+Allow: /subject/*
+Allow: /planner
+Allow: /resources
+Allow: /analytics
+Allow: /auth
+Disallow: /admin
+Disallow: /settings
+Disallow: /messages
+Disallow: /messages/*
+
+# Host & Sitemaps
+Host: https://examprep-pxp.vercel.app
+Sitemap: https://examprep-pxp.vercel.app/sitemap.xml

@@ -10,8 +10,15 @@ import { TrendingUp, Target, BookOpen, CheckCircle2, Clock, Zap, Loader2, Downlo
 import { Button } from "@/components/ui/button";
 import { useProfile } from "@/hooks/useProfile";
 import { exportProgressPDF } from "@/utils/exportPDF";
+import { usePageSEO } from "@/hooks/usePageSEO";
 
 const Analytics = () => {
+  usePageSEO({
+    title: "Study Analytics & Progress Report",
+    description: "Detailed analytics of your study completion rate, subject mastery, streak heatmap, and downloadable PDF report.",
+    canonicalPath: "/analytics",
+  });
+
   const { progress, loading } = useCloudProgress();
   const { streak: studyStreak } = useStudyStreak();
   const { profile } = useProfile();

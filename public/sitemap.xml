@@ -7,7 +7,7 @@
   <!-- Home / Dashboard -->
   <url>
     <loc>https://examprep-pxp.vercel.app/</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-23</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -15,7 +15,7 @@
   <!-- All Subjects / Syllabus Tracker -->
   <url>
     <loc>https://examprep-pxp.vercel.app/subjects</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -23,7 +23,7 @@
   <!-- 7th Sem Subject: Computer Vision -->
   <url>
     <loc>https://examprep-pxp.vercel.app/subject/computer-vision</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -31,7 +31,7 @@
   <!-- 7th Sem Subject: Disaster Management -->
   <url>
     <loc>https://examprep-pxp.vercel.app/subject/disaster-management</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>

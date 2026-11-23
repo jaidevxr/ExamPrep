@@ -115,7 +115,7 @@ export const subjects: Subject[] = [
     id: "disaster-management",
     name: "Disaster Management",
     code: "OE43101",
-    examDate: "2026-11-23",
+    examDate: "2026-12-17",
     examTime: "10:00 AM - 01:00 PM",
     color: "secondary",
     units: [

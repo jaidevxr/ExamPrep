@@ -200,7 +200,14 @@ const SubjectDetail = () => {
                     <BookMarked className="h-5 w-5" />
                   </div>
                   <div>
-                    <h1 className="text-xl font-semibold">{subject.name}</h1>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h1 className="text-xl font-semibold">{subject.name}</h1>
+                      {subject.isPostponed && (
+                        <span className="px-2 py-0.5 text-xs font-black uppercase rounded bg-destructive/20 text-destructive border border-destructive/40 arcade-text">
+                          POSTPONED TO 17 DEC
+                        </span>
+                      )}
+                    </div>
                     <p className="text-sm text-muted-foreground">{subject.code}</p>
                   </div>
                 </div>

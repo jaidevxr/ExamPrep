@@ -215,7 +215,14 @@ const Dashboard = () => {
                       ) : (
                         <div className="bg-card/95 minecraft-block p-3 hover:bg-card transition-colors flex items-center justify-between gap-4">
                           <div className="flex-1">
-                            <h3 className="font-black text-sm">{subject.name}</h3>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="font-black text-sm">{subject.name}</h3>
+                              {subject.isPostponed && (
+                                <span className="text-[9px] px-1.5 py-0.5 rounded bg-destructive/20 text-destructive border border-destructive/40 font-black arcade-text">
+                                  POSTPONED
+                                </span>
+                              )}
+                            </div>
                             <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{subject.code}</p>
                           </div>
                           <div className="flex items-center gap-4">

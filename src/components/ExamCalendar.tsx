@@ -220,7 +220,7 @@ export const ExamCalendar = () => {
                     )}
                   />
                   <span className="text-[10px] font-semibold text-muted-foreground">
-                    {subject.name}
+                    {subject.name} {subject.isPostponed && "(Postponed)"}
                   </span>
                 </div>
               ))}
@@ -243,7 +243,14 @@ export const ExamCalendar = () => {
             <div className="space-y-4 py-4">
               {/* Subject Name */}
               <div className="space-y-1">
-                <p className="text-sm font-black">{selectedSubject.name}</p>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="text-sm font-black">{selectedSubject.name}</p>
+                  {selectedSubject.isPostponed && (
+                    <span className="px-1.5 py-0.5 text-[9px] font-black uppercase rounded bg-destructive/20 text-destructive border border-destructive/40 arcade-text">
+                      POSTPONED
+                    </span>
+                  )}
+                </div>
                 <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold">
                   {selectedSubject.code}
                 </p>

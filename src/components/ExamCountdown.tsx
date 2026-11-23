@@ -86,7 +86,14 @@ export const ExamCountdown = ({ subject, progress, onViewResource }: ExamCountdo
         <div className="flex items-start justify-between">
           <div className="space-y-2">
             <div>
-              <h3 className="font-black text-base group-hover:text-primary transition-colors tracking-wide leading-tight">{subject.name}</h3>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="font-black text-base group-hover:text-primary transition-colors tracking-wide leading-tight">{subject.name}</h3>
+                {subject.isPostponed && (
+                  <span className="px-1.5 py-0.5 text-[9px] font-black uppercase rounded bg-destructive/20 text-destructive border border-destructive/40 arcade-text">
+                    POSTPONED
+                  </span>
+                )}
+              </div>
               <div className="flex items-center gap-2 mt-1">
                 <p className="text-xs text-muted-foreground uppercase tracking-wider font-bold">{subject.code}</p>
                 {notesCount > 0 && (
@@ -115,10 +122,15 @@ export const ExamCountdown = ({ subject, progress, onViewResource }: ExamCountdo
             <p className="text-xs font-bold mt-2">
               {new Date(subject.examDate).toLocaleDateString('en-IN', { 
                 month: 'short', 
-                day: 'numeric',
+                day: 'numeric', 
                 year: 'numeric'
               })}
             </p>
+            {subject.isPostponed && (
+              <p className="text-[10px] font-bold text-destructive uppercase tracking-wider">
+                New Date (Postponed)
+              </p>
+            )}
           </div>
         </div>
 

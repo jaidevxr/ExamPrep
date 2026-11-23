@@ -100,8 +100,13 @@ export const DynamicIsland = ({ nextExam, daysUntilExam }: DynamicIslandProps) =
         </div>
 
         <div className="mt-2 sm:mt-0 text-right sm:text-left">
-          <div className="text-[10px] text-muted-foreground">
+          <div className="text-[10px] text-muted-foreground flex items-center gap-1.5 justify-end sm:justify-start">
             <span className="uppercase tracking-wider font-bold">{nextExam.name}</span>
+            {nextExam.isPostponed && (
+              <span className="text-[8px] px-1 py-0.2 rounded bg-destructive/20 text-destructive border border-destructive/40 font-black arcade-text">
+                POSTPONED
+              </span>
+            )}
           </div>
         </div>
       </div>

@@ -86,7 +86,14 @@ const Subjects = () => {
                         📖
                       </div>
                       <div>
-                        <h3 className="font-semibold text-lg">{subject.name}</h3>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="font-semibold text-lg">{subject.name}</h3>
+                          {subject.isPostponed && (
+                            <span className="px-1.5 py-0.5 text-[9px] font-black uppercase rounded bg-destructive/20 text-destructive border border-destructive/40 arcade-text">
+                              POSTPONED
+                            </span>
+                          )}
+                        </div>
                         <p className="text-sm text-muted-foreground">{subject.code}</p>
                       </div>
                     </div>

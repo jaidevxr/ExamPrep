@@ -21,6 +21,7 @@ export interface Subject {
   examTime?: string;
   color: string;
   units: Unit[];
+  isPostponed?: boolean;
 }
 
 export const subjects: Subject[] = [
@@ -118,6 +119,7 @@ export const subjects: Subject[] = [
     examDate: "2026-12-17",
     examTime: "10:00 AM - 01:00 PM",
     color: "secondary",
+    isPostponed: true,
     units: [
       {
         id: "dm-unit1",
